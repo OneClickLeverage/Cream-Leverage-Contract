@@ -2,6 +2,7 @@ pragma solidity ^0.7.0;
 pragma experimental ABIEncoderV2;
 
 import { Variables } from "../variables.sol";
+import "hardhat/console.sol";
 
 /**
  * @title InstaAccountV2.
@@ -53,6 +54,9 @@ contract InstaImplementationM1 is Constants {
     */
     function spell(address _target, bytes memory _data) internal returns (bytes memory response) {
         require(_target != address(0), "target-invalid");
+        console.log("3");
+        console.log("target: ", _target);
+
         assembly {
             let succeeded := delegatecall(gas(), _target, add(_data, 0x20), mload(_data), 0, 0)
             let size := returndatasize()
@@ -86,6 +90,7 @@ contract InstaImplementationM1 is Constants {
     payable 
     returns (bytes32) // Dummy return to fix instaIndex buildWithCast function
     {   
+        console.log("0");
         uint256 _length = _targetNames.length;
         require(_auth[msg.sender] || msg.sender == instaIndex, "1: permission-denied");
         require(_length != 0, "1: length-invalid");
@@ -98,9 +103,13 @@ contract InstaImplementationM1 is Constants {
 
         require(isOk, "1: not-connector");
 
+        console.log("1");
+
         for (uint i = 0; i < _length; i++) {
+            //console.log("_datas[i]: ".  _datas[i]);
             bytes memory response = spell(_targets[i], _datas[i]);
-            (eventNames[i], eventParams[i]) = decodeEvent(response);
+            console.log("2");
+            //(eventNames[i], eventParams[i]) = decodeEvent(response);
         }
 
         emit LogCast(

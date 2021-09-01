@@ -1,0 +1,10 @@
+module.exports = {
+    connectors: {
+      basic: 0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6,
+      auth: 0x21dF544947ba3E8b3c32561399E88B52Dc8b2823,
+      cream: 0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f,
+      flashpool: 0x4C4a2f8c81640e47606d3fd77B353E87Ba015584,
+      uniswap: 0x04C89607413713Ec9775E14b954286519d836FEf,
+      weth: 0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d
+    },
+};
