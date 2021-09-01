@@ -1,11 +1,14 @@
 # Cream-Leverage-Contract
-
-1. Install packages : `npm i`
-2. run mainnet fork network: `npx hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/<alchemy-key> --fork-block-number 13112347`
-3. deploy : `npx hardhat run --network localhost insta_scripts/deploy/deployInsta.js  `
-4. run scripts <br>
- leverage : `node insta_scripts/experiments/ex11ETHLev.js` <br>
- deleverafe : `node insta_scripts/experiments/ex12ETHDelev.js`
+ 
+ ```
+ npm i // 1. Install packages
+ npx hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/<alchemy-key> --fork-block-number 13112347 // 2. run mainnet fork network
+ npx hardhat run --network localhost insta_scripts/deploy/deployInsta.js // 3. deploy
+ 
+ node insta_scripts/experiments/ex11ETHLev.js // leverage
+ node insta_scripts/experiments/ex12ETHDelev.js // deleverage
+ 
+ ```
  
  Inside script files, you need to set input data
 
