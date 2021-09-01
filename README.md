@@ -34,3 +34,6 @@
  *Hint<br>
  - coll => 0 = ETH<br>
  - debt => 2 = DAI, 3 = USDC
+
+
+Js scripts integrate modified Instadapp sdk: https://github.com/porco-rosso-j/dsa-connect-1
