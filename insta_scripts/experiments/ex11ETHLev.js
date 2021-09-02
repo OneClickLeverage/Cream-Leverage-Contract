@@ -15,15 +15,9 @@ const key1 = secret.key1;
 // Token Addresses
 const {tokens} = require("../constant/dsa_cream2.js");
 const uni_abi = require("../constant/abi/external/uniswap.json");
-const {balanceCheck} = require("./balance_info.js")
+// const {balanceCheck} = require("./balance_info.js")
 
-const dsa = new DSA({
-  web3: web3,
-  mode: "node",
-  privateKey: key1
-});
-
-async function main() {
+export async function main() {
 
     // Inputs here
     const coll = tokens[0]; // ETH
@@ -33,59 +27,67 @@ async function main() {
     const capital = 5; // Initial capital amount
     const price_impact = 1; // %
 
-   let bool = await hasDSA(user1);
-   if(!bool)  { 
-       await build(); }  
+    const dsa = new DSA({
+      web3: web3,
+      mode: "node",
+      privateKey: key1
+    });
 
-   let dsaAddress = await getDsaAddress();
+   let bool = await hasDSA(dsa, user1);
+   if(!bool)  { 
+       await build(dsa, user1);
+    }  
+
+   let dsaAddress = await getDsaAddress(dsa, user1);
    console.log("dsaAddress: "+dsaAddress);
 
-   dsaId = await getDsaId();
+   const dsaId = await getDsaId(dsa, user1);
    await dsa.setInstance(dsaId);
 
-   let [spells, initial_col] = await addSpell(isETH, coll, debt, capital, leverage, price_impact);
+   let [spells, initial_col] = await addSpell(dsa, isETH, coll, debt, capital, leverage, price_impact);
 
-   await cast(spells, initial_col);
+   await cast(user1, spells, initial_col);
 
-   await balanceCheck(coll, debt);
+  //  await balanceCheck(coll, debt);
    console.log("Done!");
-   }
+}
 
-main();
+main()
 
-async function build() {
+export async function build(dsa, userAddress) {
    
    const gasPrice = await web3.eth.getGasPrice();
-   const nonce = await web3.eth.getTransactionCount(user1);
+   const nonce = await web3.eth.getTransactionCount(userAddress);
 
    await dsa.build({
        gasPrice: gasPrice,
        origin: user0,
-       authority: user1,
-       from: user1,
+       authority: userAddress,
+       from: userAddress,
        nonce: nonce
    });
 }
 
-async function hasDSA(address) {
+export async function hasDSA(dsa, address) {
     const account = await dsa.getAccounts(address);
+    console.log('dsa account', account)
     return account[0];
 }
 
-async function getDsaId() {
-    const account = await dsa.getAccounts(user1);
+export async function getDsaId(dsa, userAddress) {
+    const account = await dsa.getAccounts(userAddress);
     return account[0].id;
 }
 
-async function getDsaAddress() {
-    const account = await dsa.getAccounts(user1);
+export async function getDsaAddress(dsa, userAddress) {
+    const account = await dsa.getAccounts(userAddress);
     return account[0].address;
 }
 
-async function addSpell(isETH, coll, debt, capital, leverage, price_impact) {
+export async function addSpell(dsa, isETH, coll, debt, capital, leverage, price_impact) {
 
     // Deposit ( if ETH, convert it into WETH )
-    spells = await dsa.Spell();
+    const spells = await dsa.Spell();
 
     const initial_col = await web3.utils.toBN(capital * (10**coll[4]));
 
@@ -123,7 +125,7 @@ async function addSpell(isETH, coll, debt, capital, leverage, price_impact) {
     if ( isFlashloan == 0 ) {
        const [total_col, flash_amt, flash_payback_amt] = await getinfo(isFlashloan, coll, debt, leverage, capital, price_impact);
 
-       let _data = await flashSpell(coll, debt, total_col, flash_amt, flash_payback_amt); 
+       let _data = await flashSpell(dsa, coll, debt, total_col, flash_amt, flash_payback_amt); 
        console.log("here????")
        const data = await dsa.flashpool_v2.encodeFlashCastData(_data);
        console.log("here?3")
@@ -149,7 +151,7 @@ async function addSpell(isETH, coll, debt, capital, leverage, price_impact) {
     return [spells, initial_col];
 }
 
-async function flashSpell(coll, debt, total_col, flash_amt, flash_payback_amt) {
+async function flashSpell(dsa, coll, debt, total_col, flash_amt, flash_payback_amt) {
 
    let spell_flash = await dsa.Spell();
 
@@ -255,9 +257,9 @@ async function normalLeverageSpell(spells, coll, debt, initial_col, borrow_amt, 
 
 }
 
-async function cast(spells, initial_col) {
+export async function cast(userAddress, spells, initial_col) {
    const gasPrice = await web3.eth.getGasPrice();
-   const nonce = await web3.eth.getTransactionCount(user1);
+   const nonce = await web3.eth.getTransactionCount(userAddress);
 
    const transactionHash = await spells.cast({
        gasPrice: gasPrice,
