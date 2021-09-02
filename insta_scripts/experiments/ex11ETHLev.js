@@ -87,7 +87,7 @@ export async function getDsaAddress(dsa, userAddress) {
 export async function addSpell(dsa, isETH, coll, debt, capital, leverage, price_impact) {
 
     // Deposit ( if ETH, convert it into WETH )
-    const spells = await dsa.Spell();
+    let spells = await dsa.Spell();
 
     const initial_col = await web3.utils.toBN(capital * (10**coll[4]));
 
