@@ -5,6 +5,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"))
 const DSA = require('dsa-connect-1');
 const BN = require('bn.js');
 const {tokens} = require("../constant/dsa_cream2.js");
+import { balanceCheck } from './balance_info';
 import { addSpell, build, cast, getDsaAddress, getDsaId, hasDSA } from './ex11ETHLev';
 
 // Address & Key 
@@ -14,13 +15,13 @@ const user1 = secret.address1;
 const key0 = secret.key0;
 const key1 = secret.key1;
 
-export async function supplyFromBrowser(windowEth, userAddress, capital, leverage) {
+export async function supplyFromBrowser(windowEth, userAddress, capital, leverage, priceImpact) {
   const coll = tokens[0]; // ETH
   const debt = tokens[3]; // USDC,  (DAI = 3)
   const isETH = 0; // if initital deposit is ETH => 0, otherwise e.g WETH => 1.
   // const leverage = 2; // 1 ~ 5
   // const capital = 5; // Initial capital amount
-  const priceImpact = 1; // %
+  // const priceImpact = 1; // %
 
   const web3 = new Web3(windowEth)
   const dsa = new DSA(web3);
@@ -43,6 +44,6 @@ export async function supplyFromBrowser(windowEth, userAddress, capital, leverag
 
   await cast(userAddress, spells, initial_col);
 
- //  await balanceCheck(coll, debt);
+  await balanceCheck(coll, debt);
  console.log("Done!");
 }
