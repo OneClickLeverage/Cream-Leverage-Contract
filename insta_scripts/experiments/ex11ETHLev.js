@@ -3,6 +3,7 @@ const secret = require("../../secret.json");
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"));
 const DSA = require('dsa-connect-1');
+const BN = require('bn.js');
 
 // Address & Key 
 const user0 = secret.address0;
@@ -51,7 +52,7 @@ export async function main() {
    console.log("Done!");
 }
 
-main()
+// main()
 
 export async function build(dsa, userAddress) {
    
@@ -86,7 +87,7 @@ export async function getDsaAddress(dsa, userAddress) {
 export async function addSpell(dsa, isETH, coll, debt, capital, leverage, price_impact) {
 
     // Deposit ( if ETH, convert it into WETH )
-    const spells = await dsa.Spell();
+    let spells = await dsa.Spell();
 
     const initial_col = await web3.utils.toBN(capital * (10**coll[4]));
 
@@ -269,6 +270,8 @@ export async function cast(userAddress, spells, initial_col) {
    console.log("here?6")
    console.log("transactionHash: "+transactionHash)
 }
+
+
 
 async function getinfo(isFlashloan, coll, debt, leverage, initial_col, price_impact) {
 
