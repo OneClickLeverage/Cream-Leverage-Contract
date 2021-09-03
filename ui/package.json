@@ -1,0 +1,60 @@
+{
+  "name": "one-click-leverage",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@types/node": "^12.0.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "ethers": "^5.4.5",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "typescript": "^4.1.2",
+    "web-vitals": "^1.0.1"
+  },
+  "scripts": {
+    "start": "npm run watch:css && react-app-rewired start",
+    "build": "npm run watch:css && react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject",
+    "compile": "npx hardhat compile",
+    "hardhat-node": "npx hardhat node",
+    "deploy-local": "npx hardhat run scripts/deploy.js --network localhost",
+    "watch:css": "postcss src/styles/tailwind.css -o src/styles/output.css"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.15",
+    "autoprefixer": "^10.3.2",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.4.0",
+    "hardhat": "^2.6.1",
+    "postcss": "^8.3.6",
+    "postcss-cli": "^8.3.1",
+    "react-app-rewired": "^2.1.8",
+    "react-scripts": "4.0.3",
+    "tailwindcss": "^2.2.7"
+  }
+}
