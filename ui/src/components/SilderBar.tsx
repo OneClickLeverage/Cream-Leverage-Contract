@@ -29,32 +29,46 @@ export function SliderRow(props: Props) {
     props.onClick(percent)
   }
 
+  function calculateLeverageFromPercentage(percent: number): number {
+    return (percent / 100) * (props.maxLabelX - 1) +1
+  }
+
   function onDragEnd(e: MouseEvent<HTMLDivElement>) {
     setIsMouseDown(false)
   }
 
   function onDragStart(e: MouseEvent<HTMLDivElement>) {
     setIsMouseDown(true);
-    // setRangeWidth(railRef.current?.offsetWidth || 0)
   }
 
   function onDragMove(e: MouseEvent<HTMLDivElement>) {
     if (!isMouseDown) return
 
-    let relativeRate = (e.clientX - rangeOffsetLeft) / rangeWidth
+    const percent = calculateGuagePercent(e.clientX, rangeOffsetLeft, rangeWidth)
+    setGuagePercent(percent)
+  }
+
+  function calculateGuagePercent(clientX: number, offsetLeft: number, width: number): number {
+    let relativeRate = (clientX - offsetLeft) / width
     if (relativeRate > 1 && relativeRate !== Infinity) {
       relativeRate = 1
     } else if (relativeRate < 0) {
       relativeRate = 0
     }
+    return relativeRate * 100
+  }
 
-    setGuagePercent(relativeRate * 100)
+  function onSliderClick(e: MouseEvent<HTMLDivElement>) {
+    const percent = calculateGuagePercent(e.clientX, rangeOffsetLeft, rangeWidth)
+    setGuagePercent(percent)
   }
 
   useEffect(() => {
     setRangeOffsetLeft(outerRef.current?.offsetLeft || 0)
     setRangeWidth(railRef.current?.offsetWidth || 0)
-  })
+
+    console.log('offsetHetigh', railRef.current?.compareDocumentPosition(document))
+  }, [outerRef.current?.offsetLeft, railRef.current?.offsetWidth])
 
 
   return (
@@ -69,7 +83,10 @@ export function SliderRow(props: Props) {
         style={{marginTop: "42px"}}
         ref={outerRef}
       >
-      <div className="rc-slider rc-slider-with-marks">
+      <div
+        className="rc-slider rc-slider-with-marks"
+        onClick={onSliderClick}
+      >
         <div
           className="rc-slider-rail"
           style={{"backgroundColor": "rgb(21, 27, 40)"}}
@@ -121,21 +138,32 @@ export function SliderRow(props: Props) {
               )
             })
           }
-        </div>
-        {/* <div style={{position: "absolute", top: "0px", left: "0px", width: "100%"}}>
-        <div>
-            <div className="rc-slider-tooltip rc-slider-tooltip-placement-bottom"
-              style={{left: "-190px", top: "-657px"}}>
-              <div className="rc-slider-tooltip-content">
-                <div className="rc-slider-tooltip-arrow"></div>
-                <div className="rc-slider-tooltip-inner" role="tooltip"
-                  style={{backgroundColor: "rgb(21, 27, 40)", boxShadow: "none", borderRadius: "4px", padding: "4px 10px", color: "rgb(105, 226, 219)", fontSize: "13px", fontWeight: 500, lineHeight: "15px"}}>
-                  82 %
-                </div>
-              </div>
+          <div
+          className="rc-slider-tooltip rc-slider-tooltip-placement-bottom"
+          style={{
+            left: `${guagePercent}%`,
+            top: "50%",
+            position: "relative",
+            width: "4rem"
+        }}>
+          <div className="rc-slider-tooltip-content">
+            <div className="rc-slider-tooltip-arrow"></div>
+            <div className="rc-slider-tooltip-inner" role="tooltip"
+              style={{
+                backgroundColor: "rgb(21, 27, 40)",
+                boxShadow: "none",
+                borderRadius: "4px",
+                padding: "4px 10px",
+                color: "rgb(105, 226, 219)",
+                fontSize: "13px",
+                fontWeight: 500,
+                lineHeight: "15px"
+              }}>
+              {`${calculateLeverageFromPercentage(guagePercent).toFixed(2)}x`}
             </div>
           </div>
-        </div> */}
+        </div>
+        </div>
       </div>
       </div>
       </div>
