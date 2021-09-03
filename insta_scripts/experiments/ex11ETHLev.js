@@ -3,7 +3,6 @@ const secret = require("../../secret.json");
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"));
 const DSA = require('dsa-connect-1');
-const BN = require('bn.js');
 
 // Address & Key 
 const user0 = secret.address0;
