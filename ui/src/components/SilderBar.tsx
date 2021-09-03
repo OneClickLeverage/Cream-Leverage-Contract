@@ -4,7 +4,7 @@ interface Props {
   numberOfMarkers: number
   maxLabelX: number
   isPercentage: boolean
-  onClick: (percentage: number) => void
+  updateValue: (rate: number) => void
 }
 
 export function SliderRow(props: Props) {
@@ -25,8 +25,7 @@ export function SliderRow(props: Props) {
 
   function onMarkerClick(i: any) {
     const percent = i / (props.numberOfMarkers - 1) * 100
-    setGuagePercent(percent)
-    props.onClick(percent)
+    onSetGuagePercent(percent)
   }
 
   function calculateLeverageFromPercentage(percent: number): number {
@@ -45,7 +44,13 @@ export function SliderRow(props: Props) {
     if (!isMouseDown) return
 
     const percent = calculateGuagePercent(e.clientX, rangeOffsetLeft, rangeWidth)
+    onSetGuagePercent(percent)
+  }
+
+  function onSetGuagePercent(percent: number) {
     setGuagePercent(percent)
+    const leverageRate = calculateLeverageFromPercentage(percent)
+    props.updateValue(leverageRate)
   }
 
   function calculateGuagePercent(clientX: number, offsetLeft: number, width: number): number {
@@ -60,7 +65,7 @@ export function SliderRow(props: Props) {
 
   function onSliderClick(e: MouseEvent<HTMLDivElement>) {
     const percent = calculateGuagePercent(e.clientX, rangeOffsetLeft, rangeWidth)
-    setGuagePercent(percent)
+    onSetGuagePercent(percent)
   }
 
   useEffect(() => {

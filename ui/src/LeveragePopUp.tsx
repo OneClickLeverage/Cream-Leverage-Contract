@@ -80,7 +80,7 @@ export default function LeveragePopUp() {
             numberOfMarkers={5}
             maxLabelX={3}
             isPercentage={false}
-            onClick={setLeverageRate}
+            updateValue={setLeverageRate}
           />
           <div className="row-header-label">LEVERAGE STATS</div>
               <div className="row-content">
