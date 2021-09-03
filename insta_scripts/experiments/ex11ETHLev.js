@@ -52,7 +52,7 @@ export async function main() {
    console.log("Done!");
 }
 
-main()
+// main()
 
 export async function build(dsa, userAddress) {
    
@@ -270,6 +270,8 @@ export async function cast(userAddress, spells, initial_col) {
    console.log("here?6")
    console.log("transactionHash: "+transactionHash)
 }
+
+
 
 async function getinfo(isFlashloan, coll, debt, leverage, initial_col, price_impact) {
 

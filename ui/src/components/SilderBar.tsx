@@ -1,46 +1,96 @@
-import React, { useState } from 'react';
+import React, { MouseEvent, useEffect, useRef, useState } from 'react';
 
 interface Props {
   numberOfMarkers: number
   maxLabelX: number
   isPercentage: boolean
-  onClick: (activeIndex: number) => void
+  onClick: (percentage: number) => void
 }
 
 export function SliderRow(props: Props) {
-  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const railRef = useRef<HTMLDivElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null)
+  const [guagePercent, setGuagePercent] = useState<number>(0);
+  const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
+  const [rangeOffsetLeft, setRangeOffsetLeft] = useState<number>(0)
+  const [rangeWidth, setRangeWidth] = useState<number>(0)
 
   const unit = 100 / (props.numberOfMarkers - 1);
 
-  function getLabelUnit(i: number): number {
-    const maxLabel = props.isPercentage ? props.maxLabelX : props.maxLabelX - 1;
+  function getLabelUnit(i: number, isPercentage: boolean): number {
+    const maxLabel = isPercentage ? props.maxLabelX : props.maxLabelX - 1;
     const percentageUnit = maxLabel / (props.numberOfMarkers - 1)
-    return props.isPercentage ? percentageUnit*i: 1+percentageUnit*i
+    return isPercentage ? percentageUnit*i: 1+percentageUnit*i
   }
 
-  function onClick(i: any) {
-    console.log('click', i)
-    setActiveIndex(i)
-    props.onClick(getLabelUnit(i))
+  function onMarkerClick(i: any) {
+    const percent = i / (props.numberOfMarkers - 1) * 100
+    setGuagePercent(percent)
+    props.onClick(percent)
   }
+
+  function onDragEnd(e: MouseEvent<HTMLDivElement>) {
+    setIsMouseDown(false)
+  }
+
+  function onDragStart(e: MouseEvent<HTMLDivElement>) {
+    setIsMouseDown(true);
+    // setRangeWidth(railRef.current?.offsetWidth || 0)
+  }
+
+  function onDragMove(e: MouseEvent<HTMLDivElement>) {
+    if (!isMouseDown) return
+
+    let relativeRate = (e.clientX - rangeOffsetLeft) / rangeWidth
+    if (relativeRate > 1 && relativeRate !== Infinity) {
+      relativeRate = 1
+    } else if (relativeRate < 0) {
+      relativeRate = 0
+    }
+
+    setGuagePercent(relativeRate * 100)
+  }
+
+  useEffect(() => {
+    setRangeOffsetLeft(outerRef.current?.offsetLeft || 0)
+    setRangeWidth(railRef.current?.offsetWidth || 0)
+  })
+
 
   return (
-    <div className="row" style={{marginBottom: "12px"}}>
-      <div className="rc-slider-outer"  style={{marginTop: "42px"}}>
+    <div
+      className="row"
+      style={{marginBottom: "12px"}}
+      onMouseMove={onDragMove}
+      onMouseUp={onDragEnd}
+      >
+      <div
+        className="rc-slider-outer"
+        style={{marginTop: "42px"}}
+        ref={outerRef}
+      >
       <div className="rc-slider rc-slider-with-marks">
-        <div className="rc-slider-rail" style={{"backgroundColor": "rgb(21, 27, 40)"}}>
+        <div
+          className="rc-slider-rail"
+          style={{"backgroundColor": "rgb(21, 27, 40)"}}
+          ref={railRef}
+        >
         </div>
-        <div className="rc-slider-track" style={{"backgroundColor": "rgb(255, 184, 210)", left: "0%", right: "auto", width: "0%"}}></div>
-        <div className="rc-slider-step">
+        <div
+          className="rc-slider-track"
+          style={{"backgroundColor": "rgb(105, 226, 219)", left: "0%", right: "auto", width: `${guagePercent}%`}
+          }></div>
+        <div className="rc-slider-step"
+        >
           {
             [...Array(props.numberOfMarkers).keys()].map((v,  i: number) => {
-              const isActive = activeIndex === i
+              const isActive = guagePercent >= getLabelUnit(i, true)
               return (
                 <span
                   key={`${unit*i}`}
-                  className={`rc-slider-dot ${isActive ? 'rc-slider-dot-active .rc-slider-dot--instyle-active' : 'rc-slider-dot--instyle'}`}
-                  onClick={() => onClick(i)}
+                  className={`rc-slider-dot ${isActive ? 'rc-slider-dot-active rc-slider-dot--instyle-active' : 'rc-slider-dot--instyle'}`}
                   style={{left: `${unit*i}%`}}
+                  onClick={() => onMarkerClick(i)}
                 ></span>
               )
             })
@@ -49,28 +99,45 @@ export function SliderRow(props: Props) {
         <div
           tabIndex={0}
           className="rc-slider-handle rc-slider-handle--instyle"
-          style={{left: `${unit*activeIndex}%`}}
           role="slider"
           aria-valuemin={0}
-          aria-valuemax={100} aria-valuenow={0} aria-disabled="false"></div>
+          aria-valuemax={100} aria-valuenow={0} aria-disabled="false"
+          onMouseDown={onDragStart}
+          style={{left: `${guagePercent}%`}}
+        />
         <div className="rc-slider-mark">
           {
             [...Array(props.numberOfMarkers).keys()].map((v,  i: number) => {
-              const isActive = activeIndex === i
+              const isActive = guagePercent >= getLabelUnit(i, true)
               return (
                 <span
                   key={`${unit*i}`}
                   className={`rc-slider-mark-text rc-slider-mark-text--instyle ${isActive ? 'rc-slider-dot-active' : ''}`}
                   style={{left: `${unit*i}%`}}
+                  onClick={() => onMarkerClick(i)}
                 >
-                  {props.isPercentage ? `${getLabelUnit(i).toFixed(0)}%` : `${getLabelUnit(i).toFixed(1)}x`}
+                  {props.isPercentage ? `${getLabelUnit(i, props.isPercentage).toFixed(0)}%` : `${getLabelUnit(i, props.isPercentage).toFixed(1)}x`}
                 </span>
               )
             })
           }
         </div>
+        {/* <div style={{position: "absolute", top: "0px", left: "0px", width: "100%"}}>
+        <div>
+            <div className="rc-slider-tooltip rc-slider-tooltip-placement-bottom"
+              style={{left: "-190px", top: "-657px"}}>
+              <div className="rc-slider-tooltip-content">
+                <div className="rc-slider-tooltip-arrow"></div>
+                <div className="rc-slider-tooltip-inner" role="tooltip"
+                  style={{backgroundColor: "rgb(21, 27, 40)", boxShadow: "none", borderRadius: "4px", padding: "4px 10px", color: "rgb(105, 226, 219)", fontSize: "13px", fontWeight: 500, lineHeight: "15px"}}>
+                  82 %
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> */}
       </div>
       </div>
       </div>
-   )
+      )
 }

@@ -10,7 +10,7 @@ declare let window: any;
 export default function LeveragePopUp() {
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
-  const [leverageRate, setLeverageRate] = useState<number>()
+  const [leverageRate, setLeverageRate] = useState<number>(0)
   const [inputAmount, setInputAmount] = useState<number>(0);
 
   async function requestAccount() {
@@ -26,7 +26,7 @@ export default function LeveragePopUp() {
   }
 
   async function executeSupply() {
-    supplyFromBrowser(window.ethereum, myAddress, inputAmount, leverageRate)
+    await supplyFromBrowser(window.ethereum, myAddress, inputAmount, leverageRate)
   }
 
   useEffect(() => {

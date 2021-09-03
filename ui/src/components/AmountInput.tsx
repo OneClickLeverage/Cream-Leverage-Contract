@@ -22,7 +22,6 @@ export function AmountInput(props: Props) {
     }
     const price = getPrice()
     price.then(value => {
-      console.log('curr price', value)
       setCurrentPrice(value)
     })
   }, [])
