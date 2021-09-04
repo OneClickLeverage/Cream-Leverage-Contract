@@ -24,7 +24,7 @@ And this is how deleverage looks like.
 ### Contract Wallet
 Contract wallet that creates and closes leverage and deleverages positions is a modified fork of Instadap's DSA contract. 
 
-※We built the contract wallet because it turned out that it's impossible to let users take leverage position with ordinary contracts working as a proxy between the user and cream contract.
+※Note: We built the contract wallet because it turned out that it's impossible to let users take leverage position with ordinary contracts working as a proxy between the user and cream contract.
 
 In that architecture, cr/cytoken that user would get is always sent to the contract instead of the user.  This is because `msg.sender` is the proxy contract, and the contract cannot send cr/cytoken back to a user unless it has 0 debt.
 
@@ -33,7 +33,7 @@ On the other hand, the contract wallet enables it and offers multiple flexible s
 ### Flashloan and Cream contracts
 All leveraged positions are only made through depositing and borrowing from CreamV2, a.k.a. IronBank. Only when a position is created via flashloan, the liquidity (flashloaned funds) are taken by CreamV1 instead of the same cyToken pool to avoid reversions caused by reentrancy. 
 
-※We are not 100% sure this is because of the reentrancy guard, but it didn't succeed when the source of the liquidity where the collateral is deposited and funds are borrowed via flashloan are the same. 
+※Note: We are not 100% sure this is because of the reentrancy guard, but it didn't succeed when the source of the liquidity where the collateral is deposited and funds are borrowed via flashloan are the same. 
 
 ## Build
 
