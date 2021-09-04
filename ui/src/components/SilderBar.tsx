@@ -123,7 +123,7 @@ export function SliderRow(props: Props) {
           className="rc-slider-handle rc-slider-handle--instyle"
           role="slider"
           aria-valuemin={0}
-          aria-valuemax={100} aria-valuenow={0} aria-disabled="false"
+          aria-valuemax={100} aria-valuenow={guagePercent} aria-disabled="false"
           onMouseDown={onDragStart}
           style={{left: `${guagePercent}%`}}
         />

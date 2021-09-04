@@ -11,7 +11,7 @@ export default function LeveragePopUp() {
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
   const [leverageRate, setLeverageRate] = useState<number>(0)
-  const [inputAmount, setInputAmount] = useState<number>(0);
+  const [initialCollateral, setInitialCollateralAmount] = useState<number>(0);
   const [priceImpact, setPriceImpact] = useState<number>(0.5);
 
   async function requestAccount() {
@@ -26,7 +26,7 @@ export default function LeveragePopUp() {
   }
 
   async function executeSupply() {
-    await supplyFromBrowser(window.ethereum, myAddress, inputAmount, leverageRate, priceImpact)
+    await supplyFromBrowser(window.ethereum, myAddress, initialCollateral, leverageRate, priceImpact)
   }
 
   function onPriceImpactInput(e:any) {
@@ -48,8 +48,8 @@ export default function LeveragePopUp() {
         <div className="leverage-body">
           <AmountInput
             balance={balance}
-            inputAmount={inputAmount}
-            setInputAmount={setInputAmount}
+            initialCollateral={initialCollateral}
+            setCollateralAmount={setInitialCollateralAmount}
           />
             <div className="leverage-label">Leverage</div>
             <SliderRow
