@@ -10,7 +10,8 @@ const { tokens } = require("../constant/dsa_cream2.js");
 const {
     getAccountSnapshot,
     getPrice,
-    getValue
+    getValue,
+    getAccountData
 } = require("./getInfo.js");
 const { getDsaAddress } = require("./dsa.js");
 
@@ -27,10 +28,10 @@ async function balanceCheck(dsa, user_address, coll, debt) {
     const user_eth_balance = await web3.eth.getBalance(user_address);
 
     // Loan & Debt
-    const [supply_amount, debt_amount] = await getAccountSnapshot(user_address, coll, debt);
+    const [supply_amount, debt_amount] = await getAccountData(dsa, user_address, coll, debt);
     const coll_price = await getPrice(coll);
     const debt_price = await getPrice(debt);
-    const [coll_value, debt_value] = await getValue(user_address, coll, debt);
+    const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
 
     // Calcu Debt Ratio
     const debt_ratio = debt_value / coll_value;

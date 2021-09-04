@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
-import { getDebtRatioFromBrowser, supplyFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
+import { getDebtRatioFromBrowser, getLiquidationPriceFromBrowser, supplyFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../insta_scripts/experiments/getInfo';
 import { AmountInput } from './components/AmountInput';
 import { SliderRow } from './components/SilderBar';
@@ -55,6 +55,7 @@ export default function LeveragePopUp(props: Props) {
   const [collErrorMsg, setCollErrorMsg] = useState<string>("")
   const [debtErrorMsg, setDebtErrorMsg] = useState<string>("")
   const [debtRatio, setDebtRatio] = useState<number>(0)
+  const [liquidationPrice, setLiquidationPrice] = useState<number>(0)
 
   const isError = debtErrorMsg !== '' || collErrorMsg !== ''
   const hasInput = initialCollateral > 0 && debtAmount > 0
@@ -147,6 +148,17 @@ export default function LeveragePopUp(props: Props) {
     .then((ratio: number) => {
       setDebtRatio(ratio)
     })
+
+    getLiquidationPriceFromBrowser(
+      window.ethereum,
+      myAddress,
+      props.collateralToken,
+      props.debtToken,
+      initialCollateral,
+      debtAmount, 2)
+    .then((price: number) => {
+      setLiquidationPrice(price)
+    })
   }
 
   function roundAmount(amount: number): number {
@@ -173,8 +185,17 @@ export default function LeveragePopUp(props: Props) {
     .then((ratio: number) => {
       setDebtRatio(ratio)
     })
-  }, [])
-
+    getLiquidationPriceFromBrowser(
+      window.ethereum,
+      myAddress,
+      props.collateralToken,
+      props.debtToken,
+      initialCollateral,
+      debtAmount, 2)
+    .then((price: number) => {
+      setLiquidationPrice(price)
+    })
+  })
 
   return (
     <div className="leverage-outer">
@@ -227,7 +248,7 @@ export default function LeveragePopUp(props: Props) {
             </div>
             <div className="row-content">
               <div className="row-content-label">Liquidation Price</div>
-              <div className="row-content-value">$</div>
+              <div className="row-content-value">{`$${(liquidationPrice).toFixed(2)}`}</div>
             </div>
             <div className="row-content">
               <div className="row-content-label">Borrow APY</div>

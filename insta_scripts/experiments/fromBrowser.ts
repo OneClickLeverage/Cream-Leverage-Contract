@@ -1,10 +1,9 @@
-
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"));
 const DSA = require('dsa-connect-1');
 const { tokens } = require("../constant/dsa_cream2.js");
 const { _leverage } = require("./ex11ETHLev");
-const { getDebtRatio } = require('./getInfo')
+const { getDebtRatio, getLiquidationPrice } = require('./getInfo')
 
 function getDSAFromBrowser(windowEth) {
   const web3 = new Web3(windowEth)
@@ -30,10 +29,13 @@ export async function getDebtRatioFromBrowser(windowEth, userAddress, collTokenI
   const coll = tokens[collTokenID]
   const debt = tokens[debtTokenID]
 
-  console.log(dsa, userAddress)
-
   return getDebtRatio(dsa, userAddress, coll, debt, collChange, debtChange, action)
 }
-// module.exports = [
-//   supplyFromBrowser
-// ]
+
+export async function getLiquidationPriceFromBrowser(windowEth, userAddress, collTokenID, debtTokenID, collChange, debtChange, action) {
+  const dsa = getDSAFromBrowser(windowEth)
+  const coll = tokens[collTokenID]
+  const debt = tokens[debtTokenID]
+
+  return getLiquidationPrice(dsa, userAddress, coll, debt, collChange, debtChange, action)
+}
