@@ -5,206 +5,178 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"))
 const DSA = require('dsa-connect-1');
 
 // Address & Key 
-const user0 = secret.address0;
 const user1 = secret.address1;
-
-const key0 = secret.key0;
 const key1 = secret.key1;
 
 // Token Addresses
-const {tokens} = require("../constant/dsa_cream2.js");
-const uni_abi = require("../constant/abi/external/uniswap.json");
-// const {balanceCheck} = require("./balance_info.js")
+const { tokens } = require("../constant/dsa_cream2.js");
+const {
+    getLeverage,
+    isFlashloanLev,
+    getBorrowAmtColl,
+    getPayBackAmt,
+} = require("./getInfo.js");
+const { build, cast, castETH, getDsaId, hasDSA } = require("./dsa.js");
+const { balanceCheck } = require("./balance_info.js");
 
-export async function main() {
+async function main() {
 
     // Inputs here
     const coll = tokens[0]; // ETH
-    const debt = tokens[3]; // USDC,  (DAI = 3)
+    const debt = tokens[2]; // USDC,  (DAI = 3)
     const isETH = 0; // if initital deposit is ETH => 0, otherwise e.g WETH => 1.
-    const leverage = 2; // 1 ~ 5
-    const capital = 5; // Initial capital amount
+    const initial_coll = 1; // Initial capital amount
+    const debt_amount = 3000;
     const price_impact = 1; // %
 
     const dsa = new DSA({
-      web3: web3,
-      mode: "node",
-      privateKey: key1
+        web3: web3,
+        mode: "node",
+        privateKey: key1
     });
 
-   let bool = await hasDSA(dsa, user1);
-   if(!bool)  { 
-       await build(dsa, user1);
-    }  
+    let bool = await hasDSA(dsa, user1);
+    if (!bool) {
+        await build(dsa, user1);
+    }
 
-   let dsaAddress = await getDsaAddress(dsa, user1);
-   console.log("dsaAddress: "+dsaAddress);
+    const dsaId = await getDsaId(dsa, user1);
+    await dsa.setInstance(dsaId);
 
-   const dsaId = await getDsaId(dsa, user1);
-   await dsa.setInstance(dsaId);
+    let [spells, _initial_coll] = await addSpell(dsa, isETH, coll, debt, initial_coll, debt_amount, price_impact);
 
-   let [spells, initial_col] = await addSpell(dsa, isETH, coll, debt, capital, leverage, price_impact);
+    if (isETH == 0) {
+        await castETH(user1, spells, _initial_coll);
+    } else {
+        await cast(user1, spells);
+    }
 
-   await cast(user1, spells, initial_col);
-
-  //  await balanceCheck(coll, debt);
-   console.log("Done!");
+    await balanceCheck(dsa, user1, coll, debt);
+    console.log("Done!");
 }
 
 main()
 
-export async function build(dsa, userAddress) {
-   
-   const gasPrice = await web3.eth.getGasPrice();
-   const nonce = await web3.eth.getTransactionCount(userAddress);
 
-   await dsa.build({
-       gasPrice: gasPrice,
-       origin: user0,
-       authority: userAddress,
-       from: userAddress,
-       nonce: nonce
-   });
-}
-
-export async function hasDSA(dsa, address) {
-    const account = await dsa.getAccounts(address);
-    console.log('dsa account', account)
-    return account[0];
-}
-
-export async function getDsaId(dsa, userAddress) {
-    const account = await dsa.getAccounts(userAddress);
-    return account[0].id;
-}
-
-export async function getDsaAddress(dsa, userAddress) {
-    const account = await dsa.getAccounts(userAddress);
-    return account[0].address;
-}
-
-export async function addSpell(dsa, isETH, coll, debt, capital, leverage, price_impact) {
-
+async function addSpell(dsa, isETH, coll, debt, initial_coll, debt_amount, price_impact) {
     // Deposit ( if ETH, convert it into WETH )
-    const spells = await dsa.Spell();
+    let spells = await dsa.Spell();
 
-    const initial_col = await web3.utils.toBN(capital * (10**coll[4]));
+    const _initial_coll = await web3.utils.toBN(initial_coll * coll[4]);
 
     if (isETH == 0) {
-     await spells.add({
-      connector: "BASIC-A",
-      method: "deposit",
-      args: [
-       coll[5],
-       initial_col
-      ]
-      });
-
-     await spells.add({
-         connector: "WETH-A",
-         method: "deposit",
-         args: [initial_col]
-     });
-
-   } else {
-
-    await spells.add({
-      connector: "BASIC-A",
-      method: "deposit",
-      args: [
-       coll[0],
-       initial_col
-      ]
-      });
-   }
-
-   // Flashloan check
-   const isFlashloan = await _isFlashloan(coll, leverage);
-
-    if ( isFlashloan == 0 ) {
-       const [total_col, flash_amt, flash_payback_amt] = await getinfo(isFlashloan, coll, debt, leverage, capital, price_impact);
-
-       let _data = await flashSpell(dsa, coll, debt, total_col, flash_amt, flash_payback_amt); 
-       console.log("here????")
-       const data = await dsa.flashpool_v2.encodeFlashCastData(_data);
-       console.log("here?3")
-  
         await spells.add({
-        connector: "FLASHPOOL-A",
-        method: "flashBorrowAndCast",
-        args: [
-         debt[0],
-         web3.utils.toBN(web3.utils.toWei(flash_amt.toString(), debt[6])), // sell flashloaned USDC
-         0, // flashloan from crToken
-         data
-        ]
-       });
+            connector: "BASIC-A",
+            method: "deposit",
+            args: [
+                coll[5],
+                _initial_coll
+            ]
+        });
 
-     } else {
-        const [total_col, borrow_amt, leverage_amt] = await getinfo(isFlashloan, coll, debt, leverage, capital, price_impact);  
-        spells = await normalLeverageSpell(spells, coll, debt, capital, borrow_amt, leverage_amt);
-     }
+        await spells.add({
+            connector: "WETH-A",
+            method: "deposit",
+            args: [_initial_coll]
+        });
 
-       console.log("here?4");
+    } else {
 
-    return [spells, initial_col];
+        await spells.add({
+            connector: "BASIC-A",
+            method: "deposit",
+            args: [
+                coll[0],
+                _initial_coll
+            ]
+        });
+    }
+
+    const leverage = await getLeverage(coll, debt, initial_coll, debt_amount, price_impact)
+    // Flashloan check
+    const isFlashloan = await isFlashloanLev(coll, leverage);
+    console.log("isFlashloan:" + isFlashloan);
+
+    const borrow_amt_coll = await getBorrowAmtColl(coll, debt, debt_amount, price_impact);
+
+    if (isFlashloan == 0) {
+        const payback_amt = await getPayBackAmt(debt_amount);
+        const total_coll = initial_coll + borrow_amt_coll;
+
+        let _data = await flashSpell(dsa, coll, debt, total_coll, debt_amount, payback_amt);
+        const data = await dsa.flashpool_v2.encodeFlashCastData(_data);
+
+        await spells.add({
+            connector: "FLASHPOOL-A",
+            method: "flashBorrowAndCast",
+            args: [
+                debt[0],
+                web3.utils.toBN(web3.utils.toWei(debt_amount.toString(), debt[6])),
+                0, // flashloan from crToken
+                data
+            ]
+        });
+
+    } else {
+        spells = await normalLeverageSpell(spells, coll, debt, initial_coll, debt_amount, borrow_amt_coll);
+    }
+
+    return [spells, _initial_coll];
 }
 
-async function flashSpell(dsa, coll, debt, total_col, flash_amt, flash_payback_amt) {
+async function flashSpell(dsa, coll, debt, total_coll, flash_amt, flash_payback_amt) {
 
-   let spell_flash = await dsa.Spell();
+    let spell_flash = await dsa.Spell();
 
-   // 1. swap debt into coll on Uniswap
-   // 2. deposit total coll into cyToken
-   // 3. borrow debt from crToken
-   // 4. payback flashloaned debt to cyToken
-  
+    // 1. swap debt into coll on Uniswap
+    // 2. deposit total coll into cyToken
+    // 3. borrow debt from crToken
+    // 4. payback flashloaned debt to cyToken
+
     await spell_flash.add({
         connector: "UNISWAP-V2-A",
         method: "sell",
         args: [
-         coll[0],
-         debt[0],
-         web3.utils.toBN(web3.utils.toWei(flash_amt.toString(), debt[6])), // sell flashloaned USDC
-         0 // unit Amount 
+            coll[0],
+            debt[0],
+            web3.utils.toBN(web3.utils.toWei(flash_amt.toString(), debt[6])), // sell flashloaned USDC
+            0 // unit Amount 
         ]
     });
-  
+
     await spell_flash.add({
         connector: "CREAM-A",
         method: "depositRaw",
         args: [
-         coll[0],
-         coll[2], // to cyToken
-         web3.utils.toBN(web3.utils.toWei(total_col.toString(), coll[6]))
-         ]
-       });
-  
-      await spell_flash.add({
+            coll[0],
+            coll[2], // to cyToken
+            web3.utils.toBN(web3.utils.toWei(total_coll.toString(), coll[6]))
+        ]
+    });
+
+    await spell_flash.add({
         connector: "CREAM-A",
         method: "borrowRaw",
         args: [
-         debt[0],
-         debt[2], // from cyToken instead of crToken which was used in flashloan
-         web3.utils.toBN(web3.utils.toWei(flash_payback_amt.toString(), debt[6]))
+            debt[0],
+            debt[2], // from cyToken instead of crToken which was used in flashloan
+            web3.utils.toBN(web3.utils.toWei(flash_payback_amt.toString(), debt[6]))
         ]
-       });
-      
-      await spell_flash.add({
+    });
+
+    await spell_flash.add({
         connector: "FLASHPOOL-A",
         method: "flashPayback",
-        args: [debt[0], 
+        args: [debt[0],
         web3.utils.toBN(web3.utils.toWei(flash_payback_amt.toString(), debt[6]))
         ]
-       });
+    });
 
-       console.log("here?")
-
-       return spell_flash;
+    return spell_flash;
 
 }
 
-async function normalLeverageSpell(spells, coll, debt, initial_col, borrow_amt, leverage_amt) {
+async function normalLeverageSpell(spells, coll, debt, initial_coll, debt_amount, borrow_amt_coll) {
 
     // 1. deposit
     // 2. borrow
@@ -215,30 +187,30 @@ async function normalLeverageSpell(spells, coll, debt, initial_col, borrow_amt, 
         connector: "CREAM-A",
         method: "depositRaw",
         args: [
-         coll[0],
-         coll[2], // to cyToken
-         web3.utils.toBN(web3.utils.toWei(initial_col.toString(), coll[6])),
-         ]
-       });
+            coll[0],
+            coll[2], // to cyToken
+            web3.utils.toBN(web3.utils.toWei(initial_coll.toString(), coll[6])),
+        ]
+    });
 
-      await spells.add({
+    await spells.add({
         connector: "CREAM-A",
         method: "borrowRaw",
         args: [
-         debt[0],
-         debt[2], // from cyToken in normal leverage
-         web3.utils.toBN(web3.utils.toWei(borrow_amt.toString(), debt[6])),
+            debt[0],
+            debt[2], // from cyToken in normal leverage
+            web3.utils.toBN(web3.utils.toWei(debt_amount.toString(), debt[6])),
         ]
-       });
+    });
 
     await spells.add({
         connector: "UNISWAP-V2-A",
         method: "sell",
         args: [
-         coll[0],
-         debt[0],
-         web3.utils.toBN(web3.utils.toWei(borrow_amt.toString(), debt[6])),
-         0 // unit Amount 
+            coll[0],
+            debt[0],
+            web3.utils.toBN(web3.utils.toWei(debt_amount.toString(), debt[6])),
+            0 // unit Amount 
         ]
     });
 
@@ -246,61 +218,16 @@ async function normalLeverageSpell(spells, coll, debt, initial_col, borrow_amt, 
         connector: "CREAM-A",
         method: "depositRaw",
         args: [
-         coll[0],
-         coll[2], // to cyToken
-         web3.utils.toBN(web3.utils.toWei(leverage_amt.toString(), coll[6])),
-         ]
-       });
+            coll[0],
+            coll[2], // to cyToken
+            web3.utils.toBN(web3.utils.toWei(borrow_amt_coll.toString(), coll[6])),
+        ]
+    });
 
-   return spells;
-
+    return spells;
 }
 
-export async function cast(userAddress, spells, initial_col) {
-   const gasPrice = await web3.eth.getGasPrice();
-   const nonce = await web3.eth.getTransactionCount(userAddress);
-
-   const transactionHash = await spells.cast({
-       gasPrice: gasPrice,
-       value: initial_col,
-       nonce: nonce
-   });
-
-   console.log("here?6")
-   console.log("transactionHash: "+transactionHash)
-}
-
-async function getinfo(isFlashloan, coll, debt, leverage, initial_col, price_impact) {
-
-    const _total_col = initial_col*leverage;
-    const total_col = await web3.utils.toBN(_total_col * (10**coll[4]));
-
-    const leverage_amt = await web3.utils.toBN( total_col - ((initial_col) * (10**coll[4])));
-    const uni_pair = [debt[0], coll[0]];
-    const uni = new web3.eth.Contract(uni_abi, "0x7a250d5630b4cf539739df2c5dacb4c659f2488d");
-
-    const _result = await uni.methods.getAmountsIn(leverage_amt, uni_pair).call();
-    console.log("_result", _result[0])
-
-    if (isFlashloan == 0) {
-    //const flash_payback_amt = parseFloat((_result[0] * 1.0003)*(1+(price_impact/100))).toFixed(0);
-    //const flash_payback_amt = parseInt((_result[0] * 1.0003)*(1+(price_impact/100)), 10);
-    //const flash_payback_amt = Math.round((_result[0] * 1.0003)*(1+(price_impact/100))*10/10);
-    //const flash_payback_amt = (_result[0] * 1.0003)*(1+(price_impact/100))
-    const flash_payback_amt = parseFloat((_result[0] * 1.0003)*(1+(price_impact/100))).toFixed(0);
-
-    console.log("flash_payback_amt", flash_payback_amt)
-    return [total_col/(10**coll[4]), _result[0]/(10**debt[4]), flash_payback_amt/(10**debt[4])];
-    } else {
-    return [total_col/(10**coll[4]), _result[0]/(10**debt[4]), leverage_amt/(10**coll[4])];
-    }
-}
-
-async function _isFlashloan(coll, leverage) {
-    const lev_max = coll[3] + 1;
-    if ( leverage >= lev_max ) {
-        return 0; // flashloan
-    } else {
-        return 1; // loop
-    }
-}
+module.exports = {
+    main,
+    addSpell
+};
