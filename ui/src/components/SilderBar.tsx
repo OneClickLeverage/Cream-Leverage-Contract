@@ -4,13 +4,13 @@ interface Props {
   numberOfMarkers: number
   maxLabelX: number
   isPercentage: boolean
-  updateValue: (rate: number) => void
+  leverageRate: number
+  updateLeverageRate: (rate: number) => void
 }
 
 export function SliderRow(props: Props) {
   const railRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null)
-  const [guagePercent, setGuagePercent] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [rangeOffsetLeft, setRangeOffsetLeft] = useState<number>(0)
   const [rangeWidth, setRangeWidth] = useState<number>(0)
@@ -32,6 +32,10 @@ export function SliderRow(props: Props) {
     return (percent / 100) * (props.maxLabelX - 1) +1
   }
 
+  function calculatePercentageFromLeverage(leverageRate: number): number {
+    return (leverageRate-1) / (props.maxLabelX-1) * 100
+  }
+
   function onDragEnd(e: MouseEvent<HTMLDivElement>) {
     setIsMouseDown(false)
   }
@@ -48,9 +52,8 @@ export function SliderRow(props: Props) {
   }
 
   function onSetGuagePercent(percent: number) {
-    setGuagePercent(percent)
     const leverageRate = calculateLeverageFromPercentage(percent)
-    props.updateValue(leverageRate)
+    props.updateLeverageRate(leverageRate)
   }
 
   function calculateGuagePercent(clientX: number, offsetLeft: number, width: number): number {
@@ -71,10 +74,9 @@ export function SliderRow(props: Props) {
   useEffect(() => {
     setRangeOffsetLeft(outerRef.current?.offsetLeft || 0)
     setRangeWidth(railRef.current?.offsetWidth || 0)
-
-    console.log('offsetHetigh', railRef.current?.compareDocumentPosition(document))
   }, [outerRef.current?.offsetLeft, railRef.current?.offsetWidth])
 
+  const guagePercent = calculatePercentageFromLeverage(props.leverageRate)
 
   return (
     <div

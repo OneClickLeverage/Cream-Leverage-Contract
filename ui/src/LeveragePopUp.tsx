@@ -7,11 +7,15 @@ import "./LeveragePopUp.css";
 
 declare let window: any;
 
+const MAX_LEVERAGE_RATE = 5
+
 export default function LeveragePopUp() {
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
-  const [leverageRate, setLeverageRate] = useState<number>(0)
+  const [conversionRate, setConversionRate] = useState<number>(0)
+  const [leverageRate, setLeverageRate] = useState<number>(1)
   const [initialCollateral, setInitialCollateralAmount] = useState<number>(0);
+  const [debtAmount, setDebtAmount] = useState<number>(0)
   const [priceImpact, setPriceImpact] = useState<number>(0.5);
 
   async function requestAccount() {
@@ -26,12 +30,53 @@ export default function LeveragePopUp() {
   }
 
   async function executeSupply() {
-    await supplyFromBrowser(window.ethereum, myAddress, initialCollateral, leverageRate, priceImpact)
+    await supplyFromBrowser(window.ethereum, myAddress, initialCollateral, debtAmount, priceImpact)
   }
 
   function onPriceImpactInput(e:any) {
     const input = e.target.value as number
     setPriceImpact(input)
+  }
+
+  function calculateLeverageRate(collateral: number, debt: number): number {
+    const equivalentDebtAmount = debt / conversionRate
+    const total = collateral + equivalentDebtAmount
+    const rate = total / collateral
+    return rate
+  }
+
+  function calculateDebtFromRate(rate: number, collateral: number): number {
+    const total = rate * collateral
+    const debtEquivalent = (total - initialCollateral) * conversionRate
+    return debtEquivalent
+  }
+
+  function onSetDebtAmount(amount: number) {
+    const rate = calculateLeverageRate(initialCollateral, amount)
+
+    if (rate > MAX_LEVERAGE_RATE) {
+      alert(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
+      return
+    }
+    setDebtAmount(amount)
+    setLeverageRate(rate)
+  }
+
+  function onSetCollateral(amount: number) {
+    const rate = calculateLeverageRate(amount, debtAmount)
+
+    if (rate > MAX_LEVERAGE_RATE) {
+      alert(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
+      return
+    }
+    setInitialCollateralAmount(amount)
+    setLeverageRate(rate)
+  }
+
+  function onLeverageRateChange(rate: number) {
+    const debtAmount = calculateDebtFromRate(rate, initialCollateral)
+    setDebtAmount(debtAmount)
+    setLeverageRate(rate)
   }
 
   useEffect(() => {
@@ -49,14 +94,19 @@ export default function LeveragePopUp() {
           <AmountInput
             balance={balance}
             initialCollateral={initialCollateral}
-            setCollateralAmount={setInitialCollateralAmount}
+            debtAmount={debtAmount}
+            conversionRate={conversionRate}
+            setCollateralAmount={onSetCollateral}
+            setDebtAmount={onSetDebtAmount}
+            setConversionRate={setConversionRate}
           />
             <div className="leverage-label">Leverage</div>
             <SliderRow
               numberOfMarkers={5}
-              maxLabelX={5}
+              maxLabelX={MAX_LEVERAGE_RATE}
               isPercentage={false}
-              updateValue={setLeverageRate}
+              leverageRate={leverageRate}
+              updateLeverageRate={onLeverageRateChange}
             />
 
           <div className="slippage-label">Slippage Tolerance</div>
@@ -104,7 +154,7 @@ export default function LeveragePopUp() {
           <div style={{ marginTop: "100px", display: "flex" }}>
             <button
               onClick={executeSupply}
-              className="borrow-button"
+              className="borrow-button disabled"
               style={{ width: "100%", marginTop: "6px", marginLeft: "0px" }}
             >
               Execute Leverage

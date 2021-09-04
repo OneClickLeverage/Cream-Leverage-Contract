@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 interface Props {
   balance: number
   initialCollateral: number
+  debtAmount: number
+  conversionRate: number
   setCollateralAmount: (amount: number) => void
+  setDebtAmount: (amount: number) => void
+  setConversionRate: (amount: number) => void
 }
 
 export function AmountInput(props: Props) {
-  const [currentPrice, setCurrentPrice] = useState<number>(0);
-
   useEffect(() => {
     const getPrice = async () => {
       try {
@@ -20,15 +22,19 @@ export function AmountInput(props: Props) {
       }
       
     }
-    const price = getPrice()
-    price.then(value => {
-      setCurrentPrice(value)
+    getPrice().then(value => {
+      props.setConversionRate(value)
     })
   }, [])
 
   function onDepositAmountInput(e:any) {
     const input = e.target.value as number
-    props.setCollateralAmount(input)
+    props.setCollateralAmount(Number(input))
+  }
+
+  function onDebtAmountInput(e:any) {
+    const input = e.target.value as number
+    props.setDebtAmount(Number(input))
   }
 
   return (
@@ -52,11 +58,12 @@ export function AmountInput(props: Props) {
                 className="price-input"
                 type="number"
                 onInput={onDepositAmountInput}
+                value={props.initialCollateral}
               >
               </input>
               <span>ETH</span>
             </div>
-            <div>{`$${(props.initialCollateral * currentPrice).toFixed(2)}`}</div>
+            <div>{`$${(props.initialCollateral * props.conversionRate).toFixed(2)}`}</div>
           </div>
         </div>
       </div>
@@ -73,12 +80,13 @@ export function AmountInput(props: Props) {
               <input
                 className="price-input"
                 type="number"
-                onInput={onDepositAmountInput}
+                onInput={onDebtAmountInput}
+                value={props.debtAmount}
               >
               </input>
               <span>DAI</span>
             </div>
-            <div> ETH</div>
+            <div>{`${(props.debtAmount / props.conversionRate).toFixed(6)} ETH`}</div>
           </div>
         </div>
       </div>
