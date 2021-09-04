@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 interface Props {
   balance: number
-  inputAmount: number
-  setInputAmount: (amount: number) => void
+  initialCollateral: number
+  setCollateralAmount: (amount: number) => void
 }
 
 export function AmountInput(props: Props) {
@@ -26,9 +26,9 @@ export function AmountInput(props: Props) {
     })
   }, [])
 
-  function onInput(e:any) {
+  function onDepositAmountInput(e:any) {
     const input = e.target.value as number
-    props.setInputAmount(input)
+    props.setCollateralAmount(input)
   }
 
   return (
@@ -51,18 +51,18 @@ export function AmountInput(props: Props) {
               <input
                 className="price-input"
                 type="number"
-                onInput={onInput}
+                onInput={onDepositAmountInput}
               >
               </input>
               <span>ETH</span>
             </div>
-            <div>{`$${(props.inputAmount * currentPrice).toFixed(2)}`}</div>
+            <div>{`$${(props.initialCollateral * currentPrice).toFixed(2)}`}</div>
           </div>
         </div>
       </div>
       <div className="row-header">
         <div className="row-header-label">
-          BORROW AMOUNT
+          DEBT AMOUNT
         </div>
       </div>
 
@@ -72,7 +72,9 @@ export function AmountInput(props: Props) {
             <div className="price-input-wrapper">
               <input
                 className="price-input"
-                type="number">
+                type="number"
+                onInput={onDepositAmountInput}
+              >
               </input>
               <span>DAI</span>
             </div>
