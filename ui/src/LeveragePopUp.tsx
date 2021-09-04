@@ -59,6 +59,7 @@ export default function LeveragePopUp(props: Props) {
 
   const isError = debtErrorMsg !== '' || collErrorMsg !== ''
   const hasInput = initialCollateral > 0 && debtAmount > 0
+  const shouldNotExecute = isError || !hasInput;
 
   async function requestAccount() {
     await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -274,8 +275,14 @@ export default function LeveragePopUp(props: Props) {
               type="button"
               onClick={executeSupply}
               className="borrow-button"
-              disabled={isError || !hasInput}
-              style={{ width: "100%", marginTop: "6px", marginLeft: "0px" }}
+              disabled={shouldNotExecute}
+              style={{
+                width: "100%",
+                marginTop: "6px",
+                marginLeft: "0px",
+                cursor: shouldNotExecute ? 'not-allowed' : 'pointer',
+                opacity: shouldNotExecute ? 0.2 : 1,
+              }}
             >
               Execute Leverage
             </button>
