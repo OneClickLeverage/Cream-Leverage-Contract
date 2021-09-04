@@ -10,11 +10,11 @@ declare let window: any;
 export default function LeveragePopUp() {
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
-  const [leverageRate, setLeverageRate] = useState<number>()
-  const [inputAmount, setInputAmount] = useState<number>(0);
+  const [leverageRate, setLeverageRate] = useState<number>(0)
+  const [initialCollateral, setInitialCollateralAmount] = useState<number>(0);
+  const [priceImpact, setPriceImpact] = useState<number>(0.5);
 
   async function requestAccount() {
-    console.log('request')
     await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -26,7 +26,12 @@ export default function LeveragePopUp() {
   }
 
   async function executeSupply() {
-    supplyFromBrowser(window.ethereum, myAddress, inputAmount, leverageRate)
+    await supplyFromBrowser(window.ethereum, myAddress, initialCollateral, leverageRate, priceImpact)
+  }
+
+  function onPriceImpactInput(e:any) {
+    const input = e.target.value as number
+    setPriceImpact(input)
   }
 
   useEffect(() => {
@@ -37,88 +42,76 @@ export default function LeveragePopUp() {
     <div className="leverage-outer">
       <div className="leverage-inner">
         <div style={{ display: "flex" }}>
-          <div className="borrow-tab borrow-tab--active">Borrow</div>
-          <div className="borrow-tab borrow-tab--inactive">Repay</div>
+          <div className="borrow-tab borrow-tab--active">Leverage</div>
+          <div className="borrow-tab borrow-tab--inactive">Deleverage</div>
         </div>
         <div className="leverage-body">
           <AmountInput
             balance={balance}
-            inputAmount={inputAmount}
-            setInputAmount={setInputAmount}
+            initialCollateral={initialCollateral}
+            setCollateralAmount={setInitialCollateralAmount}
           />
-          <div className="row" style={{marginTop: "42px"}}>
-            <div className="row-header" style={{marginBottom: "12px"}}>
-              <div className="row-header-label">BORROW STATS</div>
+            <div className="leverage-label">Leverage</div>
+            <SliderRow
+              numberOfMarkers={5}
+              maxLabelX={5}
+              isPercentage={false}
+              updateValue={setLeverageRate}
+            />
+
+          <div className="slippage-label">Slippage Tolerance</div>
+          <div className="priceimpact-input-outer">
+            <input
+              className="priceimpact-input"
+              type="number" value="0.5"
+              onInput={onPriceImpactInput}
+            >
+            </input>
+            <span > % ( default: 0.5% )</span>
+          </div>
+
+          <div className="row" style={{ marginTop: "42px" }}>
+            <div className="row-header" style={{ marginBottom: "12px" }}>
+              <div className="row-header-label">LEVERAGE STATS (EXPECTED)</div>
+            </div>
+            <div className="row-content">
+              <div className="row-content-label">Debt Ratio</div>
+              <div className="row-content-value">%</div>
+            </div>
+            <div className="row-content">
+              <div className="row-content-label">Liquidation Price</div>
+              <div className="row-content-value">$</div>
             </div>
             <div className="row-content">
               <div className="row-content-label">Borrow APY</div>
-              <div className="row-content-value">3.29%</div>
+              <div className="row-content-value">
+                <div>0%</div>
+              </div>
             </div>
             <div className="row-content">
-              <div className="row-content-label">Borrow Balance</div>
+              <div className="row-content-label">Supply APY</div>
               <div className="row-content-value">
-                <div>0 ETH</div>
+                  <div>0%</div>
+              </div>
+            </div>
+            <div className="row-content">
+              <div className="row-content-label">Net APY (supply - borrow)</div>
+              <div className="row-content-value">
+                <div>0%</div>
               </div>
             </div>
           </div>
-          <div className="row" style={{marginTop: "42px"}}>
-            <div className="row-header" style={{marginBottom: "12px"}}>
-              <div className="row-header-label">BORROW LIMIT</div>
-            </div>
-            <div className="row-content">
-              <div className="row-content-label">Your Borrow Limit</div>
-              <div className="row-content-value">$0.00</div>
-            </div>
-            <div className="row-content">
-              <div className="row-content-label">Borrow Limit Used</div>
-              <div className="row-content-value">
-                <div>0% -&gt; 0%</div>
-              </div>
-            </div>
-          </div>
-          <SliderRow
-            numberOfMarkers={5}
-            maxLabelX={3}
-            isPercentage={false}
-            onClick={setLeverageRate}
-          />
-          <div className="row-header-label">LEVERAGE STATS</div>
-              <div className="row-content">
-                <div className="row-content-label">Expected MIM amount</div>
-                <div className="row-content-value">~ 0.0000</div>
-              </div>
-              <div className="row-content">
-                <div className="row-content-label">Expected Apy</div>
-                <div className="row-content-value">
-                  <div>~ 6.2532%</div>
-                </div>
-              </div>
-              <div className="row-content">
-                <div className="row-content-label">Expected leverage</div>
-                <div className="row-content-value">~ 0x</div>
-              </div>
-              <div className="row-content">
-                <div className="row-content-label">Expected liquidation price</div>
-                <div className="row-content-value">~ $xxx.xx</div>
-              </div>
-              <div className="row-content">
-                <div className="row-content-label">Maximum Collateral Factor</div>
-                <div className="row-content-value">75%</div>
-              </div>
-          <div className="sc-fWCJfs sc-jWUzTF kjawyH bflNhW" style={{marginTop: "100px", display: "flex"}}>
-            <button className="sc-iAKVOt sc-efQUeY sc-cTApHj dEknAC eWLxTJ fVRyQa"
+          <div style={{ marginTop: "100px", display: "flex" }}>
+            <button
               onClick={executeSupply}
+              className="borrow-button"
+              style={{ width: "100%", marginTop: "6px", marginLeft: "0px" }}
             >
-              <div className="sc-jObXwK cBBNUN">1</div>
-              Approve
-            </button>
-            <button disabled={true} className="sc-iAKVOt sc-efQUeY sc-cTApHj ITVgk eWLxTJ fVRyQa">
-              <div className="sc-jObXwK cBBNUN">2</div>
-              Supply
+              Execute Leverage
             </button>
           </div>
         </div>
       </div>
-    </div>
-  );
+      </div>
+  )
 } 

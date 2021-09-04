@@ -15,7 +15,6 @@ const user1 = secret.address1;
 const key0 = secret.key0;
 const key1 = secret.key1;
 
-
 export async function supplyFromBrowser(windowEth, userAddress, initial_coll, debt_amount) {
   const coll = tokens[0]; // ETH
   const debt = tokens[3]; // USDC,  (DAI = 3)

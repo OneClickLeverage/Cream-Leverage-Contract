@@ -21,7 +21,7 @@ body {
 .leverage-inner {
   display: flex;
   flex-direction: column;
-  background-color: rgb(34, 30, 56);
+  background-color: rgb(30, 39, 56);
   border-radius: 4px;
   width: 100%;
 }
@@ -47,10 +47,11 @@ border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .borrow-tab--active {
-  color: rgb(255, 184, 210);
-
+  /* color: rgb(255, 184, 210); */
+  color: rgb(105, 226, 219);
   transition: all 0.2s ease-out 0s;
-  border-bottom: 1px solid rgb(255, 184, 210);
+  /* border-bottom: 1px solid rgb(255, 184, 210); */
+  border-bottom: 1px solid rgb(105, 226, 219);
 }
 
 .borrow-tab--inactive {
@@ -80,7 +81,7 @@ border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 .row-header-label {
   opacity: 0.5;
   letter-spacing: 1.833px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
 }
@@ -120,16 +121,16 @@ text-align: right;
 .price-input-outer {
   display: flex;
   flex-direction: column;
+  margin-bottom: 20px;
   color: rgb(230, 230, 230);
 }
 
 .price-input-inner {
   display: flex;
--moz-box-align: center;
-align-items: center;
-border-radius: 4px;
-background-color: rgb(16, 17, 30);
-  
+  -moz-box-align: center;
+  align-items: center;
+  border-radius: 4px;
+  background-color: rgb(16, 17, 30);
 }
 
 .price-input-inner-inner {
@@ -142,15 +143,10 @@ background-color: rgb(16, 17, 30);
   cursor: text;
 }
 
-
-
 .price-input-wrapper {
-
-
-
   font-size: 18px;
   font-weight: 500;
-
+  border-radius: 4px;
   display: flex;
   flex-direction: row;
 }
@@ -169,6 +165,30 @@ background-color: rgb(16, 17, 30);
   font-size: inherit;
   -moz-appearance: textfield;
 }
+
+.priceimpact-input-outer{
+  flex-direction: column;
+  margin-bottom: 10px;
+  color: rgb(230, 230, 230);
+}
+
+.priceimpact-input {
+  text-align: right;
+  outline: currentcolor none medium;
+  color: rgb(230, 230, 230);
+  border-radius: 4px;
+  border: 0px none;
+  margin-right:8px;
+  font-size: 10;
+  background-color: rgb(16, 17, 30);
+  height: 25px;
+  width: 60px;
+}
+
+.priceimpact-options {
+  flex-direction: 'row'
+}
+
 .rc-slider {
   position: relative;
   height: 14px;
@@ -428,7 +448,8 @@ background-color: rgb(16, 17, 30);
 .rc-slider-dot--instyle {
   width: 8px;
   height: 8px;
-  border-color: rgb(255, 184, 210);
+  /* border-color: rgb(255, 184, 210); */
+  border-color: rgb(105, 226, 219);
   border-width: 2px;
   background-color: rgb(30, 39, 56); 
 }
@@ -438,7 +459,8 @@ background-color: rgb(16, 17, 30);
   height: 12px;
   border-color: rgb(21, 27, 40);
   border-width: 3px;
-  background-color: rgb(255, 184, 210);
+  /* background-color: rgb(255, 184, 210); */
+  border-color: rgb(121, 160, 158);
   left: 0%;
   bottom: -4px;
   margin-left: -6px;
@@ -446,7 +468,8 @@ background-color: rgb(16, 17, 30);
 
 .rc-slider-handle--instyle {
   background-color: rgb(21, 27, 40);
-  border-color: rgb(255, 184, 210);
+  /* border-color: rgb(255, 184, 210); */
+  border-color: rgb(121, 160, 158);
   border-width: 3px;
   width: 16px;
   height: 16px;
@@ -480,6 +503,24 @@ background-color: rgb(16, 17, 30);
   margin: 12px 4px 50px;
 }
 
+.leverage-label {
+  margin-bottom: 10px;
+  opacity: 0.5;
+  letter-spacing: 1.833px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.slippage-label {
+  margin-bottom: 10px;
+  opacity: 0.5;
+  letter-spacing: 1.833px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
 .borrow-button {
   width: auto;
 padding: 0px 20px;
@@ -491,10 +532,12 @@ outline: currentcolor none medium;
 border-radius: 4px;
 transition: all 0.2s ease-out 0s;
 font-weight: 500;
-background-color: rgb(255, 184, 210);
+/* background-color: rgb(255, 184, 210); */
+/* background-color: rgb(121, 160, 158); */
+background-color: rgb(105, 226, 219);
 color: black;
-opacity: 0.2;
-cursor: not-allowed;
+opacity: 1;
+cursor: pointer;
 }
 
 .dEknAC {
@@ -543,3 +586,11 @@ cursor: not-allowed;
   color: white;
   line-height: 24px;
 }
+
+.bn-onboard-custom.bn-onboard-modal-content.bn-onboard-dark-mode{background:#1e2738}.bn-onboard-custom.bn-onboard-icon-button.bn-onboard-dark-mode-background-hover:hover,.bn-onboard-custom.bn-onboard-selected-wallet.bn-onboard-dark-mode-background-hover{background:#151b28}body{background:#000;color:#fff!important;overflow-y:scroll!important;margin:0;font-size:14px;font-family:"rubik",-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Fira Sans","Droid Sans","Helvetica Neue",sans-serif!important;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}code{font-family:source-code-pro,Menlo,Monaco,Consolas,"Courier New",monospace}a{transition:all .2s ease-out}a,a:focus,a:visited{text-decoration:none;color:#fff}a:active,a:hover{text-decoration:underline;color:#fff;transition:all 0s}th{font-weight:400}input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}input[type=number]{-moz-appearance:textfield}
+/* @font-face{font-family:"rubik";src:local("rubik"),url(https://app.cream.finance/static/media/Rubik-Medium.2263cf4b.ttf) format("truetype");font-weight:500}
+@font-face{font-family:"rubik";src:local("rubik"),url(https://app.cream.finance/static/media/Rubik-Regular.a4bece5c.ttf) format("truetype");font-weight:400}
+@font-face{font-family:"rubik";src:local("rubik"),url(https://app.cream.finance/static/media/Rubik-Bold.366b50ff.ttf) format("truetype");font-weight:700} */
+
+.modal-appear{opacity:0;-webkit-transform:translate3d(0,100%,0);transform:translate3d(0,100%,0)}.modal-appear-active{opacity:1;-webkit-transform:translateZ(0);transform:translateZ(0);transition:all .2s}.modal-exit{opacity:1}.modal-exit-active{opacity:0;-webkit-transform:translate3d(0,100%,0);transform:translate3d(0,100%,0);transition:all .2s}.market-table .rdt_TableCell{font-weight:500}.rdt_Pagination{display:none!important}.react-date-picker__wrapper{display:none!important;-webkit-flex-grow:1;flex-grow:1;-webkit-flex-shrink:0;flex-shrink:0;border:thin solid grey}.iceCREAM-calendar{background:#000;font-family:inherit}.iceCREAM-calendar .react-calendar__navigation__label{color:#fff;font-weight:500}.iceCREAM-calendar .react-calendar__navigation__arrow{color:#69e2db;font-weight:500}.iceCREAM-calendar .react-calendar__navigation button:enabled:focus,.iceCREAM-calendar .react-calendar__navigation button:enabled:hover{background-color:unset}.iceCREAM-calendar .react-calendar__navigation button[disabled]{background-color:unset;color:hsla(0,0%,90.2%,.3)}.iceCREAM-calendar .react-calendar__tile{background-color:unset;color:#69e2db;font-weight:500}.iceCREAM-calendar .react-calendar__tile:disabled{background-color:unset;color:hsla(0,0%,90.2%,.3)}.iceCREAM-calendar .react-calendar__month-view__days__day--neighboringMonth{color:hsla(0,0%,90.2%,.8)}.iceCREAM-calendar .react-calendar__tile:enabled:focus,.iceCREAM-calendar .react-calendar__tile:enabled:hover{background-color:#fff;color:#000}
+/*# sourceMappingURL=main.c1b19222.chunk.css.map */

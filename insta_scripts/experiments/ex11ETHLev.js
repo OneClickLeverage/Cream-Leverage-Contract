@@ -3,6 +3,7 @@ const secret = require("../../secret.json");
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"));
 const DSA = require('dsa-connect-1');
+const BN = require('bn.js');
 
 // Address & Key 
 const user1 = secret.address1;
@@ -40,7 +41,6 @@ async function _leverage(dsa, user_address, coll, debt, isETH, initial_coll, deb
     await balanceCheck(dsa, user_address, coll, debt);
     console.log("Done!");
 }
-
 
 async function addSpell(dsa, isETH, coll, debt, initial_coll, debt_amount, price_impact) {
     // Deposit ( if ETH, convert it into WETH )
@@ -215,3 +215,4 @@ module.exports = {
     _leverage,
     addSpell
 };
+
