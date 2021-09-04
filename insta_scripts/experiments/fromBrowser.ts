@@ -5,7 +5,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"))
 const DSA = require('dsa-connect-1');
 
 const { tokens } = require("../constant/dsa_cream2.js");
-import { build, cast, castETH, getDsaAddress, getDsaId, hasDSA } from './dsa';
+import { build, cast, castETH, getDsaId, hasDSA } from './dsa';
 import { addSpell } from './ex11ETHLev';
 
 // Address & Key 

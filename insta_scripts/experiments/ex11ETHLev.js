@@ -19,43 +19,27 @@ const {
 const { build, cast, castETH, getDsaId, hasDSA } = require("./dsa.js");
 const { balanceCheck } = require("./balance_info.js");
 
-async function main() {
+async function _leverage(dsa, user_address, coll, debt, isETH, initial_coll, debt_amount, price_impact) {
 
-    // Inputs here
-    const coll = tokens[0]; // ETH
-    const debt = tokens[2]; // USDC,  (DAI = 3)
-    const isETH = 0; // if initital deposit is ETH => 0, otherwise e.g WETH => 1.
-    const initial_coll = 1; // Initial capital amount
-    const debt_amount = 3000;
-    const price_impact = 1; // %
-
-    const dsa = new DSA({
-        web3: web3,
-        mode: "node",
-        privateKey: key1
-    });
-
-    let bool = await hasDSA(dsa, user1);
+    let bool = await hasDSA(dsa, user_address);
     if (!bool) {
-        await build(dsa, user1);
+        await build(dsa, user_address);
     }
 
-    const dsaId = await getDsaId(dsa, user1);
+    const dsaId = await getDsaId(dsa, user_address);
     await dsa.setInstance(dsaId);
 
     let [spells, _initial_coll] = await addSpell(dsa, isETH, coll, debt, initial_coll, debt_amount, price_impact);
 
     if (isETH == 0) {
-        await castETH(user1, spells, _initial_coll);
+        await castETH(user_address, spells, _initial_coll);
     } else {
-        await cast(user1, spells);
+        await cast(user_address, spells);
     }
 
-    await balanceCheck(dsa, user1, coll, debt);
+    await balanceCheck(dsa, user_address, coll, debt);
     console.log("Done!");
 }
-
-main()
 
 
 async function addSpell(dsa, isETH, coll, debt, initial_coll, debt_amount, price_impact) {
@@ -228,6 +212,6 @@ async function normalLeverageSpell(spells, coll, debt, initial_coll, debt_amount
 }
 
 module.exports = {
-    main,
+    _leverage,
     addSpell
 };

@@ -2,14 +2,7 @@ const secret = require("../../secret.json");
 
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"));
-const DSA = require('dsa-connect-1');
 
-// Address & Key 
-const user1 = secret.address1;
-const key1 = secret.key1;
-
-// Token Addresses
-const { tokens } = require("../constant/dsa_cream2.js");
 const {
     getPayBackAmt,
     getSoldAmtColl,
@@ -18,42 +11,24 @@ const {
 const { cast, getDsaId, hasDSA } = require("./dsa.js");
 const { balanceCheck } = require("./balance_info.js")
 
-const dsa = new DSA({
-    web3: web3,
-    mode: "node",
-    privateKey: key1
-});
+async function _deleverage(dsa, user_address, coll, debt, isETH, withdraw_amt, payback_amt, price_impact) {
 
-async function main() {
-
-    const eth_balance = await web3.eth.getBalance(user1);
-
-    // Inputs here
-    const coll = tokens[0]; // ETH, (WBTC = 1)
-    const debt = tokens[2]; // USDC,  (DAI = 3)
-    const isETH = 0; // if withdraw asset is ETH => 0, otherwise e.g WETH => 1.
-    const withdraw_amt = 4; // e.g. 1 ~ 5
-    const payback_amt = 5000; // e.g. 1000 ~ 5000
-    const price_impact = 1; // %
-
-    let bool = await hasDSA(dsa, user1);
+    let bool = await hasDSA(dsa, user_address);
     if (!bool) {
         console.log("No position")
         return;
     }
 
-    const dsaId = await getDsaId(dsa, user1);
+    const dsaId = await getDsaId(dsa, user_address);
     await dsa.setInstance(dsaId);
 
-    let spells = await addSpell(dsa, user1, isETH, coll, debt, withdraw_amt, payback_amt, price_impact);
+    let spells = await addSpell(dsa, user_address, isETH, coll, debt, withdraw_amt, payback_amt, price_impact);
 
-    await cast(user1, spells);
+    await cast(user_address, spells);
 
-    await balanceCheck(dsa, user1, coll, debt);
+    await balanceCheck(dsa, user_address, coll, debt);
     console.log("Done!");
 }
-
-main();
 
 async function addSpell(dsa, user_address, isETH, coll, debt, withdraw_amt, payback_amt, price_impact) {
 
@@ -116,8 +91,6 @@ async function addSpell(dsa, user_address, isETH, coll, debt, withdraw_amt, payb
             ]
         });
     }
-
-    console.log("here?4");
 
     return spells;
 }
@@ -212,5 +185,9 @@ async function normalLeverageSpell(spells, coll, debt, withdraw_amt, payback_amt
     });
 
     return spells;
-
 }
+
+module.exports = {
+    _deleverage,
+    addSpell
+};
