@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
-import { supplyFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
+import { getDebtRatioFromBrowser, supplyFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../insta_scripts/experiments/getInfo';
 import { AmountInput } from './components/AmountInput';
 import { SliderRow } from './components/SilderBar';
@@ -54,6 +54,10 @@ export default function LeveragePopUp(props: Props) {
   const [netAPY, setNetAPY] = useState<string>("")
   const [collErrorMsg, setCollErrorMsg] = useState<string>("")
   const [debtErrorMsg, setDebtErrorMsg] = useState<string>("")
+  const [debtRatio, setDebtRatio] = useState<number>(0)
+
+  const isError = debtErrorMsg !== '' || collErrorMsg !== ''
+  const hasInput = initialCollateral > 0 && debtAmount > 0
 
   async function requestAccount() {
     await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -100,6 +104,7 @@ export default function LeveragePopUp(props: Props) {
 
     setDebtAmount(roundAmount(amount))
     setLeverageRate(rate)
+    updateDebtRatio()
   }
 
   function onSetCollateral(amount: number) {
@@ -116,6 +121,7 @@ export default function LeveragePopUp(props: Props) {
     }
     setInitialCollateralAmount(amount)
     setLeverageRate(rate)
+    updateDebtRatio()
   }
 
   function onLeverageRateChange(rate: number) {
@@ -123,6 +129,24 @@ export default function LeveragePopUp(props: Props) {
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)
     setDebtAmount(roundAmount(debtAmount))
     setLeverageRate(rate)
+    updateDebtRatio()
+  }
+
+  function updateDebtRatio() {
+    if (!hasInput) {
+      return
+    }
+
+    getDebtRatioFromBrowser(
+      window.ethereum,
+      myAddress,
+      props.collateralToken,
+      props.debtToken,
+      initialCollateral,
+      debtAmount, 2)
+    .then((ratio: number) => {
+      setDebtRatio(ratio)
+    })
   }
 
   function roundAmount(amount: number): number {
@@ -139,11 +163,18 @@ export default function LeveragePopUp(props: Props) {
     getAssetAPYs(props.collateralToken).then(([, sAPY]:number[]) => setSupplyAPY(sAPY.toFixed(2)))
     getAssetAPYs(props.debtToken).then(([bAPY]:number[]) => setBorrowAPY(bAPY.toFixed(2)))
     getNetAPY(props.collateralToken, props.debtToken).then((nAPY: number) => setNetAPY(nAPY.toFixed(2)))
-    
+    getDebtRatioFromBrowser(
+      window.ethereum,
+      myAddress,
+      props.collateralToken,
+      props.debtToken,
+      initialCollateral,
+      debtAmount, 2)
+    .then((ratio: number) => {
+      setDebtRatio(ratio)
+    })
   }, [])
 
-  const isError = debtErrorMsg !== '' || collErrorMsg !== ''
-  const hasInput = initialCollateral > 0 && debtAmount > 0
 
   return (
     <div className="leverage-outer">
@@ -192,7 +223,7 @@ export default function LeveragePopUp(props: Props) {
             </div>
             <div className="row-content">
               <div className="row-content-label">Debt Ratio</div>
-              <div className="row-content-value">%</div>
+              <div className="row-content-value">{`${(debtRatio * 100).toFixed(2)}%`}</div>
             </div>
             <div className="row-content">
               <div className="row-content-label">Liquidation Price</div>
