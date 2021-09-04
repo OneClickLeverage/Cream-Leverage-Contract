@@ -1,5 +1,36 @@
 import React, { useEffect } from 'react';
 
+interface NumberInputProps {
+  onInput: (e: any) => void
+  value: number
+  otherPairValue: number
+  ticker: string
+  otherPairTicker: string
+}
+
+function NumberInput(props: NumberInputProps) {
+  
+  return (
+    <div className="price-input-outer">
+      <div className="price-input-inner">
+        <div className="price-input-inner-inner">
+          <div className="price-input-wrapper">
+            <input
+              className="price-input"
+              type="number"
+              onInput={props.onInput}
+              value={props.value === 0 ? '' : props.value}
+            >
+            </input>
+            <span>{props.ticker}</span>
+          </div>
+          <div>{`${props.otherPairTicker === '$' ? '$' : ''}${props.otherPairValue}${props.otherPairTicker === '$' ? '' : ' ' + props.otherPairTicker}`}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 interface Props {
   balance: number
   initialCollateral: number
@@ -52,46 +83,25 @@ export function AmountInput(props: Props) {
           </span>
         </div>
       </div>
-      <div className="price-input-outer">
-        <div className="price-input-inner">
-          <div className="price-input-inner-inner">
-            <div className="price-input-wrapper">
-              <input
-                className="price-input"
-                type="number"
-                onInput={onDepositAmountInput}
-                value={props.initialCollateral === 0 ? '' : props.initialCollateral}
-              >
-              </input>
-              <span>{props.collateralTicker}</span>
-            </div>
-            <div>{`$${(props.initialCollateral * props.conversionRate).toFixed(2)}`}</div>
-          </div>
-        </div>
-      </div>
+      <NumberInput
+        value={props.initialCollateral}
+        otherPairValue={Number((props.initialCollateral * props.conversionRate).toFixed(2))}
+        ticker={props.collateralTicker}
+        onInput={onDepositAmountInput}
+        otherPairTicker={'$'}
+      />
       <div className="row-header">
         <div className="row-header-label">
           DEBT AMOUNT
         </div>
       </div>
-
-      <div className="price-input-outer">
-        <div className="price-input-inner">
-          <div className="price-input-inner-inner">
-            <div className="price-input-wrapper">
-              <input
-                className="price-input"
-                type="number"
-                onInput={onDebtAmountInput}
-                value={props.debtAmount === 0 ? '' : props.debtAmount}
-              >
-              </input>
-              <span>{props.debtTicker}</span>
-            </div>
-            <div>{`${(props.debtAmount / props.conversionRate).toFixed(6)} ${props.collateralTicker}`}</div>
-          </div>
-        </div>
-      </div>
+      <NumberInput
+        value={props.debtAmount}
+        otherPairValue={Number((props.debtAmount / props.conversionRate).toFixed(6))}
+        ticker={props.debtTicker}
+        otherPairTicker={props.collateralTicker}
+        onInput={onDebtAmountInput}
+      />
   </div>
   )
 }
