@@ -12,7 +12,6 @@ import {CETHInterface, CTokenInterface} from "./interface.sol";
 import "hardhat/console.sol";
 
 abstract contract CreamResolver is Helpers {
-
     function depositRaw(
         address token,
         address cToken,
@@ -22,8 +21,6 @@ abstract contract CreamResolver is Helpers {
             token != address(0) && cToken != address(0),
             "invalid token/ctoken address"
         );
-        console.log("11");
-        console.log("12");
 
         enterMarket(cToken);
 
@@ -32,19 +29,12 @@ abstract contract CreamResolver is Helpers {
             CETHInterface(cToken).mint{value: amt}();
         } else {
             TokenInterface tokenContract = TokenInterface(token);
-            console.log("13");
+
             amt = amt == uint256(-1)
                 ? tokenContract.balanceOf(address(this))
                 : amt;
-            console.log("14");
+
             approve(tokenContract, cToken, amt);
-            console.log("15");
-
-            console.log("cToken", cToken);
-            console.log("deposit amt: ",amt);
-
-            uint deposit_token_balance = TokenInterface(token).balanceOf(0x33791c463B145298c575b4409d52c2BcF743BF67);
-            console.log("deposit_token_balance: ",deposit_token_balance);
 
             require(CTokenInterface(cToken).mint(amt) == 0, "deposit-failed");
             console.log("16");
@@ -95,35 +85,7 @@ abstract contract CreamResolver is Helpers {
             "invalid token/ctoken address"
         );
 
-        console.log("amt", amt);
-
         enterMarket(cToken);
-        console.log("18");
-
-        (uint result1, uint liquidity, uint shortfall) =
-         troller2.getAccountLiquidity(0x33791c463B145298c575b4409d52c2BcF743BF67);
-        
-        console.log("dsa");
-        console.log("error code", result1);
-        console.log("liquidity", liquidity);
-        console.log("shortfall", shortfall);
-    
-        (result1, liquidity, shortfall) =
-         troller2.getAccountLiquidity(0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43);
-        
-        console.log("address(this)");
-        console.log("error code", result1);
-        console.log("liquidity", liquidity);
-        console.log("shortfall", shortfall);
-
-
-        (result1, liquidity, shortfall) =
-         troller2.getAccountLiquidity(0x4C4a2f8c81640e47606d3fd77B353E87Ba015584);
-        
-        console.log("flash proxy");
-        console.log("error code", result1);
-        console.log("liquidity", liquidity);
-        console.log("shortfall", shortfall);
 
         require(CTokenInterface(cToken).borrow(amt) == 0, "borrow-failed");
     }

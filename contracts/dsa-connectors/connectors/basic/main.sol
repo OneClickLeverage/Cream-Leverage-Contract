@@ -12,8 +12,6 @@ abstract contract BasicResolver is DSMath, Basic {
     using SafeERC20 for IERC20;
 
     function deposit(address token, uint256 amt) public payable {
-        console.log("4");
-
         if (token != ethAddr) {
             IERC20 tokenContract = IERC20(token);
             amt = amt == uint256(-1)
@@ -27,7 +25,6 @@ abstract contract BasicResolver is DSMath, Basic {
             );
             amt = msg.value;
         }
-
     }
 
     function withdraw(
