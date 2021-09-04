@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { supplyFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
-import { getAssetAPYs } from '../../insta_scripts/experiments/getInfo';
+import { getAssetAPYs, getNetAPY } from '../../insta_scripts/experiments/getInfo';
 import { AmountInput } from './components/AmountInput';
 import { SliderRow } from './components/SilderBar';
 import "./LeveragePopUp.css";
@@ -49,6 +49,9 @@ export default function LeveragePopUp(props: Props) {
   const [initialCollateral, setInitialCollateralAmount] = useState<number>(0);
   const [debtAmount, setDebtAmount] = useState<number>(0)
   const [priceImpact, setPriceImpact] = useState<number>(0.5);
+  const [borrowAPY, setBorrowAPY] = useState<string>("")
+  const [supplyAPY, setSupplyAPY] = useState<string>("")
+  const [netAPY, setNetAPY] = useState<string>("")
 
   async function requestAccount() {
     await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -122,6 +125,9 @@ export default function LeveragePopUp(props: Props) {
 
   useEffect(() => {
     requestAccount();
+    getAssetAPYs(props.collateralToken).then(([, sAPY]:number[]) => setSupplyAPY(sAPY.toFixed(2)))
+    getAssetAPYs(props.debtToken).then(([bAPY]:number[]) => setBorrowAPY(bAPY.toFixed(2)))
+    getNetAPY(props.collateralToken, props.debtToken).then((nAPY: number) => setNetAPY(nAPY.toFixed(2)))
   }, [])
 
   return (
@@ -178,19 +184,19 @@ export default function LeveragePopUp(props: Props) {
             <div className="row-content">
               <div className="row-content-label">Borrow APY</div>
               <div className="row-content-value">
-                <div>0%</div>
+                <div>{`${borrowAPY}%`}</div>
               </div>
             </div>
             <div className="row-content">
               <div className="row-content-label">Supply APY</div>
               <div className="row-content-value">
-                  <div>0%</div>
+                  <div>{`${supplyAPY}%`}</div>
               </div>
             </div>
             <div className="row-content">
               <div className="row-content-label">Net APY (supply - borrow)</div>
               <div className="row-content-value">
-                <div>0%</div>
+                <div>{`${netAPY}%`}</div>
               </div>
             </div>
           </div>
