@@ -5,6 +5,8 @@ interface Props {
   initialCollateral: number
   debtAmount: number
   conversionRate: number
+  collateralTicker: string
+  debtTicker: string
   setCollateralAmount: (amount: number) => void
   setDebtAmount: (amount: number) => void
   setConversionRate: (amount: number) => void
@@ -46,7 +48,7 @@ export function AmountInput(props: Props) {
         <div className="balance-amount">
           Balance:&nbsp;
           <span className="eth-balance-color">
-            {props.balance.toFixed(4)} ETH
+            {`${props.balance.toFixed(4)} ${props.collateralTicker}`}
           </span>
         </div>
       </div>
@@ -58,10 +60,10 @@ export function AmountInput(props: Props) {
                 className="price-input"
                 type="number"
                 onInput={onDepositAmountInput}
-                value={props.initialCollateral}
+                value={props.initialCollateral === 0 ? '' : props.initialCollateral}
               >
               </input>
-              <span>ETH</span>
+              <span>{props.collateralTicker}</span>
             </div>
             <div>{`$${(props.initialCollateral * props.conversionRate).toFixed(2)}`}</div>
           </div>
@@ -81,12 +83,12 @@ export function AmountInput(props: Props) {
                 className="price-input"
                 type="number"
                 onInput={onDebtAmountInput}
-                value={props.debtAmount}
+                value={props.debtAmount === 0 ? '' : props.debtAmount}
               >
               </input>
-              <span>DAI</span>
+              <span>{props.debtTicker}</span>
             </div>
-            <div>{`${(props.debtAmount / props.conversionRate).toFixed(6)} ETH`}</div>
+            <div>{`${(props.debtAmount / props.conversionRate).toFixed(6)} ${props.collateralTicker}`}</div>
           </div>
         </div>
       </div>

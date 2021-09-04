@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { supplyFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
+import { getAssetAPYs } from '../../insta_scripts/experiments/getInfo';
 import { AmountInput } from './components/AmountInput';
 import { SliderRow } from './components/SilderBar';
 import "./LeveragePopUp.css";
@@ -9,7 +10,38 @@ declare let window: any;
 
 const MAX_LEVERAGE_RATE = 5
 
-export default function LeveragePopUp() {
+export enum TokenID {
+  ETH = 0,
+  WBTC = 1,
+  USDC = 2,
+  DAI = 3,
+}
+
+function getTokenTickerFromTokenID(id: TokenID) {
+  switch (id) {
+    case 0: {
+      return 'ETH';
+    }
+    case 1: {
+      return 'WBTC';
+    }
+    case 2: {
+      return 'USDC';
+    }
+    case 3: {
+      return 'DAI';
+    }
+    default: {
+      return ''
+    }
+  }
+}
+interface Props {
+  collateralToken: TokenID,
+  debtToken: TokenID,
+}
+
+export default function LeveragePopUp(props: Props) {
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
   const [conversionRate, setConversionRate] = useState<number>(0)
@@ -30,7 +62,7 @@ export default function LeveragePopUp() {
   }
 
   async function executeSupply() {
-    await supplyFromBrowser(window.ethereum, myAddress, initialCollateral, debtAmount, priceImpact)
+    await supplyFromBrowser(window.ethereum, myAddress, initialCollateral, debtAmount, priceImpact, props.collateralToken, props.debtToken)
   }
 
   function onPriceImpactInput(e:any) {
@@ -58,7 +90,7 @@ export default function LeveragePopUp() {
       alert(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
       return
     }
-    setDebtAmount(amount)
+    setDebtAmount(roundAmount(amount))
     setLeverageRate(rate)
   }
 
@@ -75,8 +107,17 @@ export default function LeveragePopUp() {
 
   function onLeverageRateChange(rate: number) {
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)
-    setDebtAmount(debtAmount)
+    setDebtAmount(roundAmount(debtAmount))
     setLeverageRate(rate)
+  }
+
+  function roundAmount(amount: number): number {
+    let finalAmount = amount
+    if (props.debtToken === TokenID.DAI || props.debtToken === TokenID.USDC) {
+      finalAmount = Number(amount.toFixed(2))
+    }
+
+    return finalAmount
   }
 
   useEffect(() => {
@@ -96,6 +137,8 @@ export default function LeveragePopUp() {
             initialCollateral={initialCollateral}
             debtAmount={debtAmount}
             conversionRate={conversionRate}
+            collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
+            debtTicker={getTokenTickerFromTokenID(props.debtToken)}
             setCollateralAmount={onSetCollateral}
             setDebtAmount={onSetDebtAmount}
             setConversionRate={setConversionRate}
