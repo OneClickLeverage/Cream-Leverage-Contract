@@ -52,6 +52,8 @@ export default function LeveragePopUp(props: Props) {
   const [borrowAPY, setBorrowAPY] = useState<string>("")
   const [supplyAPY, setSupplyAPY] = useState<string>("")
   const [netAPY, setNetAPY] = useState<string>("")
+  const [collErrorMsg, setCollErrorMsg] = useState<string>("")
+  const [debtErrorMsg, setDebtErrorMsg] = useState<string>("")
 
   async function requestAccount() {
     await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -87,28 +89,37 @@ export default function LeveragePopUp(props: Props) {
   }
 
   function onSetDebtAmount(amount: number) {
-    const rate = calculateLeverageRate(initialCollateral, amount)
+    let rate = calculateLeverageRate(initialCollateral, amount)
 
     if (rate > MAX_LEVERAGE_RATE) {
-      alert(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
-      return
+      setDebtErrorMsg(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
+      rate = MAX_LEVERAGE_RATE
+    } else {
+      setDebtErrorMsg('')
     }
+
     setDebtAmount(roundAmount(amount))
     setLeverageRate(rate)
   }
 
   function onSetCollateral(amount: number) {
-    const rate = calculateLeverageRate(amount, debtAmount)
+    if (amount > balance) {
+      setCollErrorMsg('Insufficient Balance')
+    } else {
+      setCollErrorMsg('')
+    }
+
+    let rate = calculateLeverageRate(amount, debtAmount)
 
     if (rate > MAX_LEVERAGE_RATE) {
-      alert(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
-      return
+      setCollErrorMsg(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
     }
     setInitialCollateralAmount(amount)
     setLeverageRate(rate)
   }
 
   function onLeverageRateChange(rate: number) {
+    setDebtErrorMsg('')
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)
     setDebtAmount(roundAmount(debtAmount))
     setLeverageRate(rate)
@@ -128,7 +139,11 @@ export default function LeveragePopUp(props: Props) {
     getAssetAPYs(props.collateralToken).then(([, sAPY]:number[]) => setSupplyAPY(sAPY.toFixed(2)))
     getAssetAPYs(props.debtToken).then(([bAPY]:number[]) => setBorrowAPY(bAPY.toFixed(2)))
     getNetAPY(props.collateralToken, props.debtToken).then((nAPY: number) => setNetAPY(nAPY.toFixed(2)))
+    
   }, [])
+
+  const isError = debtErrorMsg !== '' || collErrorMsg !== ''
+  const hasInput = initialCollateral > 0 && debtAmount > 0
 
   return (
     <div className="leverage-outer">
@@ -143,6 +158,8 @@ export default function LeveragePopUp(props: Props) {
             initialCollateral={initialCollateral}
             debtAmount={debtAmount}
             conversionRate={conversionRate}
+            debtErrorMessage={debtErrorMsg}
+            collErrorMessage={collErrorMsg}
             collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
             debtTicker={getTokenTickerFromTokenID(props.debtToken)}
             setCollateralAmount={onSetCollateral}
@@ -202,8 +219,10 @@ export default function LeveragePopUp(props: Props) {
           </div>
           <div style={{ marginTop: "100px", display: "flex" }}>
             <button
+              type="button"
               onClick={executeSupply}
-              className="borrow-button disabled"
+              className="borrow-button"
+              disabled={isError || !hasInput}
               style={{ width: "100%", marginTop: "6px", marginLeft: "0px" }}
             >
               Execute Leverage
