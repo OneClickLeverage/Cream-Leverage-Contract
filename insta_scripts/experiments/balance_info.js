@@ -39,26 +39,47 @@ async function balanceCheck(dsa, user_address, coll, debt) {
     // Output
     console.log("");
     console.log("-- Balance -- ");
-    console.log("User ETH: " + user_eth_balance / tokens[0][4]);
-    console.log("DSA Coll: " + dsa_coll_balance / coll[4]);
+    const userEthBalance = user_eth_balance / tokens[0][4]
+    console.log("User ETH: " + userEthBalance);
+    const dsaCollateralBalance = dsa_coll_balance / coll[4]
+    console.log("DSA Coll: " + dsaCollateralBalance);
+    const dsaCTokenBalance = dsa_ctoken_balance / 1E8
     console.log("DSA CToken: " + dsa_ctoken_balance / 1E8);
     console.log("");
-    console.log("Total Debt: " + debt_amount / debt[4]);
-    console.log("Total Coll: " + supply_amount / coll[4]);
+    const totalDebtAmount = debt_amount / debt[4]
+    console.log("Total Debt: " + totalDebtAmount);
+    const totalCollateralAmount = supply_amount / coll[4]
+    console.log("Total Coll: " + totalCollateralAmount);
+    const totalCollateralDollarAmount = supply_amount / coll[4] * coll_price
     console.log("Total Coll ($): " + supply_amount / coll[4] * coll_price);
     console.log("Debt Ratio: " + parseFloat(debt_ratio * 100).toFixed(3) + "%");
     console.log("");
     console.log("coll_price: " + coll_price);
     console.log("debt_price: " + debt_price);
+    const collateralRatio = coll[7]
+    console.log("collateral_ratio: " + collateralRatio);
 
     console.log("");
+
+    return {
+      userEthBalance,
+      dsaCollateralBalance,
+      dsaCTokenBalance,
+      totalDebtAmount,
+      totalCollateralAmount,
+      totalCollateralDollarAmount,
+      debtRatio: debt_ratio,
+      collateralPrice: coll_price,
+      debtPrice: debt_price,
+      collateralRatio,
+    }
 }
 
-const dsa = new DSA({
-    web3: web3,
-    mode: "node",
-    privateKey: secret.key1
-});
+// const dsa = new DSA({
+//     web3: web3,
+//     mode: "node",
+//     privateKey: secret.key1
+// });
 
 const user1 = secret.address1;
 const coll = tokens[0];

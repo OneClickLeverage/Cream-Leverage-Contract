@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import LeveragePopUp, { TokenID } from './LeveragePopUp';
+import { LeveragePopUp } from './LeveragePopUp';
 import reportWebVitals from './reportWebVitals';
+import { TokenID } from './types/TokenID';
 
 ReactDOM.render(
   <React.StrictMode>

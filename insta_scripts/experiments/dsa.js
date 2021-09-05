@@ -17,17 +17,19 @@ async function build(dsa, userAddress) {
 
 async function hasDSA(dsa, address) {
     const account = await dsa.getAccounts(address);
-    //console.log('dsa account', account)
+    if (!account || !account[0]) return ''
     return account[0];
 }
 
 async function getDsaId(dsa, userAddress) {
     const account = await dsa.getAccounts(userAddress);
+    if (!account || !account[0]) return ''
     return account[0].id;
 }
 
 async function getDsaAddress(dsa, userAddress) {
     const account = await dsa.getAccounts(userAddress);
+    if (!account || !account[0]) return ''
     return account[0].address;
 }
 
