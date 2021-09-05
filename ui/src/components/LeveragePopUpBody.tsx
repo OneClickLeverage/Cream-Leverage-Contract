@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { getDebtRatioFromBrowser, getLiquidationPriceFromBrowser, supplyFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
@@ -12,13 +11,13 @@ const MAX_LEVERAGE_RATE = 5
 interface Props {
   collateralToken: TokenID,
   debtToken: TokenID,
-  conversionRate: number
+  conversionRate: number,
+  myAddress: string,
+  balance: number,
 }
 
 export default function LeveragePopUp(props: Props) {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
-  const [myAddress, setMyAddress] = useState<string>("")
-  const [balance, setBalance] = useState<number>(0)
   const [leverageRate, setLeverageRate] = useState<number>(1)
   const [initialCollateral, setInitialCollateralAmount] = useState<number>(0);
   const [debtAmount, setDebtAmount] = useState<number>(0)
@@ -35,19 +34,8 @@ export default function LeveragePopUp(props: Props) {
   const hasInput = initialCollateral > 0 && debtAmount > 0
   const shouldNotExecute = isError || !hasInput;
 
-  async function requestAccount() {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner()
-    const address = await signer.getAddress();
-    setMyAddress(address)
-    const balanceBN = await signer.getBalance();
-    setBalance(Number(ethers.utils.formatEther(balanceBN)))
-  }
-
   async function executeSupply() {
-    await supplyFromBrowser(window.ethereum, myAddress, initialCollateral, debtAmount, priceImpact, props.collateralToken, props.debtToken)
+    await supplyFromBrowser(window.ethereum, props.myAddress, initialCollateral, debtAmount, priceImpact, props.collateralToken, props.debtToken)
   }
 
   function onPriceImpactInput(e:any) {
@@ -84,7 +72,7 @@ export default function LeveragePopUp(props: Props) {
   }
 
   function onSetCollateral(amount: number) {
-    if (amount > balance) {
+    if (amount > props.balance) {
       setCollErrorMsg('Insufficient Balance')
     } else if (collErrorMsg !== ''){
       setCollErrorMsg('')
@@ -116,7 +104,7 @@ export default function LeveragePopUp(props: Props) {
 
     getDebtRatioFromBrowser(
       window.ethereum,
-      myAddress,
+      props.myAddress,
       props.collateralToken,
       props.debtToken,
       initialCollateral,
@@ -127,7 +115,7 @@ export default function LeveragePopUp(props: Props) {
 
     getLiquidationPriceFromBrowser(
       window.ethereum,
-      myAddress,
+      props.myAddress,
       props.collateralToken,
       props.debtToken,
       initialCollateral,
@@ -149,7 +137,6 @@ export default function LeveragePopUp(props: Props) {
   useEffect(() => {
     if (!isInitialRender) return
 
-    requestAccount();
     getAssetAPYs(props.collateralToken).then(([, sAPY]:number[]) => setSupplyAPY(sAPY.toFixed(2)))
     getAssetAPYs(props.debtToken).then(([bAPY]:number[]) => setBorrowAPY(bAPY.toFixed(2)))
     getNetAPY(props.collateralToken, props.debtToken).then((nAPY: number) => setNetAPY(nAPY.toFixed(2)))
@@ -163,7 +150,7 @@ export default function LeveragePopUp(props: Props) {
   return (
     <div className="leverage-body">
       <AmountInput
-        balance={balance}
+        balance={props.balance}
         initialCollateral={initialCollateral}
         debtAmount={debtAmount}
         conversionRate={props.conversionRate}

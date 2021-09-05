@@ -1,6 +1,19 @@
-import React from 'react'
+import React from 'react';
+import { deleverageFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
+import { TokenID } from '../types/TokenID';
 
-export function DeleveragePopUpBody() {
+declare let window: any;
+interface Props {
+  collateralToken: TokenID,
+  debtToken: TokenID,
+  myAddress: string,
+}
+
+export function DeleveragePopUpBody(props: Props) {
+  async function executeDeleverage() {
+    await deleverageFromBrowser(window.ethereum, props.myAddress, 2, 6000, 0.5, props.collateralToken, props.debtToken)
+  }
+
   return (
     <div className="leverage-body">
       <div className="row">
@@ -119,7 +132,9 @@ export function DeleveragePopUpBody() {
         </div>
       </div>
       <div style={{ marginTop: "100px", display: "flex" }}>
-        <button className="borrow-button" style={{ width: "100%", marginTop: "6px", marginLeft: "0px" }}>Execute Leverage</button>
+        <button
+          onClick={executeDeleverage}
+          className="borrow-button" style={{ width: "100%", marginTop: "6px", marginLeft: "0px" }}>Execute Leverage</button>
       </div>
     </div> 
   )

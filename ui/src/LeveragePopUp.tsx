@@ -1,8 +1,11 @@
+import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
 import { DeleveragePopUpBody } from './components/DeleveragePopUpBody';
 import LeveragePopUpBody from './components/LeveragePopUpBody';
 import "./LeveragePopUp.css";
 import { TokenID } from './types/TokenID';
+
+declare let window: any;
 interface Props {
   collateralToken: TokenID,
   debtToken: TokenID,
@@ -16,12 +19,30 @@ enum TabIndex {
 export function LeveragePopUp(props: Props) {
   const [tabIndex, setTabIndex] = useState<TabIndex>(TabIndex.Deleverage)
   const [conversionRate, setConversionRate] = useState<number>(0)
+  const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
+  const [myAddress, setMyAddress] = useState<string>("")
+  const [balance, setBalance] = useState<number>(0)
 
   function onTabClick(i: TabIndex) {
     setTabIndex(i)
   }
 
+  async function requestAccount() {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner()
+    const address = await signer.getAddress();
+    setMyAddress(address)
+    const balanceBN = await signer.getBalance();
+    setBalance(Number(ethers.utils.formatEther(balanceBN)))
+  }
+
   useEffect(() => {
+    if (!isInitialRender) return
+
+    requestAccount();
+
     const getPrice = async () => {
       try {
         const resp = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum')
@@ -34,6 +55,10 @@ export function LeveragePopUp(props: Props) {
     getPrice().then(value => {
       setConversionRate(value)
     })
+
+    if (isInitialRender) {
+      setIsInitialRender(false)
+    }
   }, [])
 
   return (
@@ -58,12 +83,15 @@ export function LeveragePopUp(props: Props) {
             collateralToken={props.collateralToken}
             debtToken={props.debtToken}
             conversionRate={conversionRate}
+            myAddress={myAddress}
+            balance={balance}
           />
         }
         { tabIndex === TabIndex.Deleverage &&
           <DeleveragePopUpBody
             collateralToken={props.collateralToken}
             debtToken={props.debtToken}
+            myAddress={myAddress}
           />
         }
       </div>
