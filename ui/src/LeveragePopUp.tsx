@@ -42,6 +42,7 @@ interface Props {
 }
 
 export default function LeveragePopUp(props: Props) {
+  const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
   const [conversionRate, setConversionRate] = useState<number>(0)
@@ -100,19 +101,19 @@ export default function LeveragePopUp(props: Props) {
     if (rate > MAX_LEVERAGE_RATE) {
       setDebtErrorMsg(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
       rate = MAX_LEVERAGE_RATE
-    } else {
+    } else if (debtErrorMsg !== '') {
       setDebtErrorMsg('')
     }
 
     setDebtAmount(roundAmount(amount))
     setLeverageRate(rate)
-    updateDebtRatio()
+    updateDebtStats()
   }
 
   function onSetCollateral(amount: number) {
     if (amount > balance) {
       setCollErrorMsg('Insufficient Balance')
-    } else {
+    } else if (collErrorMsg !== ''){
       setCollErrorMsg('')
     }
 
@@ -123,18 +124,19 @@ export default function LeveragePopUp(props: Props) {
     }
     setInitialCollateralAmount(amount)
     setLeverageRate(rate)
-    updateDebtRatio()
+    updateDebtStats()
   }
 
   function onLeverageRateChange(rate: number) {
-    setDebtErrorMsg('')
+    if (debtErrorMsg !== '') {
+      setDebtErrorMsg('')
+    }
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)
     setDebtAmount(roundAmount(debtAmount))
     setLeverageRate(rate)
-    updateDebtRatio()
   }
 
-  function updateDebtRatio() {
+  function updateDebtStats() {
     if (!hasInput) {
       return
     }
@@ -172,31 +174,18 @@ export default function LeveragePopUp(props: Props) {
   }
 
   useEffect(() => {
+    if (!isInitialRender) return
+
     requestAccount();
     getAssetAPYs(props.collateralToken).then(([, sAPY]:number[]) => setSupplyAPY(sAPY.toFixed(2)))
     getAssetAPYs(props.debtToken).then(([bAPY]:number[]) => setBorrowAPY(bAPY.toFixed(2)))
     getNetAPY(props.collateralToken, props.debtToken).then((nAPY: number) => setNetAPY(nAPY.toFixed(2)))
-    getDebtRatioFromBrowser(
-      window.ethereum,
-      myAddress,
-      props.collateralToken,
-      props.debtToken,
-      initialCollateral,
-      debtAmount, 2)
-    .then((ratio: number) => {
-      setDebtRatio(ratio)
-    })
-    getLiquidationPriceFromBrowser(
-      window.ethereum,
-      myAddress,
-      props.collateralToken,
-      props.debtToken,
-      initialCollateral,
-      debtAmount, 2)
-    .then((price: number) => {
-      setLiquidationPrice(price)
-    })
-  })
+    updateDebtStats()
+
+    if (isInitialRender) {
+      setIsInitialRender(false)
+    }
+  }, [initialCollateral, debtAmount])
 
   return (
     <div className="leverage-outer">
@@ -225,7 +214,11 @@ export default function LeveragePopUp(props: Props) {
               maxLabelX={MAX_LEVERAGE_RATE}
               isPercentage={false}
               leverageRate={leverageRate}
-              updateLeverageRate={onLeverageRateChange}
+              updateLeverageRate={(onLeverageRateChange)}
+              onDragEnd={(rate: number) => {
+                setLeverageRate(rate)
+                updateDebtStats()
+              }}
             />
 
           <div className="slippage-label">Slippage Tolerance</div>

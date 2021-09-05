@@ -6,6 +6,7 @@ interface Props {
   isPercentage: boolean
   leverageRate: number
   updateLeverageRate: (rate: number) => void
+  onDragEnd: (rate: number) => void
 }
 
 export function SliderRow(props: Props) {
@@ -38,6 +39,10 @@ export function SliderRow(props: Props) {
 
   function onDragEnd(e: MouseEvent<HTMLDivElement>) {
     setIsMouseDown(false)
+    const percent = calculateGuagePercent(e.clientX, rangeOffsetLeft, rangeWidth)
+    onSetGuagePercent(percent)
+    const leverageRate = calculateLeverageFromPercentage(percent)
+    props.onDragEnd(leverageRate)
   }
 
   function onDragStart(e: MouseEvent<HTMLDivElement>) {
@@ -52,6 +57,8 @@ export function SliderRow(props: Props) {
   }
 
   function onSetGuagePercent(percent: number) {
+    if (guagePercent === percent) return
+
     const leverageRate = calculateLeverageFromPercentage(percent)
     props.updateLeverageRate(leverageRate)
   }
@@ -63,7 +70,7 @@ export function SliderRow(props: Props) {
     } else if (relativeRate < 0) {
       relativeRate = 0
     }
-    return relativeRate * 100
+    return Number((relativeRate * 100).toFixed(2))
   }
 
   function onSliderClick(e: MouseEvent<HTMLDivElement>) {
