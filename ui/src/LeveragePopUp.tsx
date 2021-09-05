@@ -1,9 +1,10 @@
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
-import { getPriceWithTokenID } from '../../insta_scripts/experiments/fromBrowser';
+import { getBalanceCheck, getPriceWithTokenID, hasDSAFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
 import { DeleveragePopUpBody } from './components/DeleveragePopUpBody';
 import LeveragePopUpBody from './components/LeveragePopUpBody';
 import "./LeveragePopUp.css";
+import { Balance, ZeroBalance } from './types/CheckBalanceAPI';
 import { TokenID } from './types/TokenID';
 
 declare let window: any;
@@ -23,6 +24,7 @@ export function LeveragePopUp(props: Props) {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
+  const [defiBalance, setDefiBalance] = useState<Balance>(ZeroBalance)
 
   function onTabClick(i: TabIndex) {
     setTabIndex(i)
@@ -37,23 +39,30 @@ export function LeveragePopUp(props: Props) {
     setMyAddress(address)
     const balanceBN = await signer.getBalance();
     setBalance(Number(ethers.utils.formatEther(balanceBN)))
+
+    const hasDSA = await hasDSAFromBrowser(window.ethereum, address)
+    if (hasDSA) {
+      const balanceInfo = await getBalanceCheck(window.ethereum, address, props.collateralToken, props.debtToken)
+      setDefiBalance(balanceInfo)
+      console.log(balanceInfo)
+    }
+  }
+
+  async function getPrice() {
+    try {
+      const collPrice = await getPriceWithTokenID(props.collateralToken)
+      const debtPrice = await getPriceWithTokenID(props.debtToken)
+      const price = collPrice / debtPrice
+      return price
+    } catch (e) {
+      return 0
+    }
   }
 
   useEffect(() => {
     if (!isInitialRender) return
 
-    requestAccount();
-
-    const getPrice = async () => {
-      try {
-        const collPrice = await getPriceWithTokenID(props.collateralToken)
-        const debtPrice = await getPriceWithTokenID(props.debtToken)
-        const price = collPrice / debtPrice
-        return price
-      } catch (e) {
-        return 0
-      }
-    }
+    requestAccount()
     getPrice().then(value => {
       setConversionRate(value)
     })
@@ -93,7 +102,11 @@ export function LeveragePopUp(props: Props) {
           <DeleveragePopUpBody
             collateralToken={props.collateralToken}
             debtToken={props.debtToken}
+            conversionRate={conversionRate}
             myAddress={myAddress}
+            balance={balance}
+            currentDebt={defiBalance.totalDebtAmount}
+            currentCollateral={defiBalance.totalCollateralAmount}
           />
         }
       </div>

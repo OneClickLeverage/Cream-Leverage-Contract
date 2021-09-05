@@ -161,18 +161,18 @@ export default function LeveragePopUp(props: Props) {
         setCollateralAmount={onSetCollateral}
         setDebtAmount={onSetDebtAmount}
       />
-        <div className="leverage-label">Leverage</div>
-        <SliderRow
-          numberOfMarkers={5}
-          maxLabelX={MAX_LEVERAGE_RATE}
-          isPercentage={false}
-          leverageRate={leverageRate}
-          updateLeverageRate={(onLeverageRateChange)}
-          onDragEnd={(rate: number) => {
-            setLeverageRate(rate)
-            updateDebtStats()
-          }}
-        />
+      <div className="leverage-label">Leverage</div>
+      <SliderRow
+        numberOfMarkers={5}
+        maxLabelX={MAX_LEVERAGE_RATE}
+        isPercentage={false}
+        leverageRate={leverageRate}
+        updateLeverageRate={(onLeverageRateChange)}
+        onDragEnd={(rate: number) => {
+          setLeverageRate(rate)
+          updateDebtStats()
+        }}
+      />
 
       <div className="slippage-label">Slippage Tolerance</div>
       <div className="priceimpact-input-outer">

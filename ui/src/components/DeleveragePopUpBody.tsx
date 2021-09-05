@@ -1,95 +1,69 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { deleverageFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
-import { TokenID } from '../types/TokenID';
+import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
+import { AmountInput } from './AmountInput';
+import { SliderRow } from './SilderBar';
 
 declare let window: any;
 interface Props {
   collateralToken: TokenID,
   debtToken: TokenID,
   myAddress: string,
+  balance: number,
+  conversionRate: number,
+  currentDebt: number,
+  currentCollateral: number,
 }
 
 export function DeleveragePopUpBody(props: Props) {
+  const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
+
+  const [collateralToReduce, setCollateraToReduce] = useState<number>(0)
+  const [debtToReduce, setDebtToReduce] = useState<number>(0)
+  const [collErrorMsg, setCollErrorMsg] = useState<string>("")
+  const [debtErrorMsg, setDebtErrorMsg] = useState<string>("")
+  const [percentDebtToReduce, setPercentDebtToReduce] = useState<number>(0)
+
   async function executeDeleverage() {
     await deleverageFromBrowser(window.ethereum, props.myAddress, 2, 6000, 0.5, props.collateralToken, props.debtToken)
   }
 
+  useEffect(() => {
+    if (!isInitialRender) return
+
+
+    if (isInitialRender) {
+      setIsInitialRender(false)
+    }
+  })
+
+
   return (
     <div className="leverage-body">
-      <div className="row">
-        <div className="row-header">
-          <div className="row-header-label">
-            DEPOSIT AMOUNT
-          </div>
-          <div className="balance-amount">
-            Balance:&nbsp;
-            <span className="eth-balance-color">
-              0.00 ETH
-            </span>
-          </div>
-        </div>
-
-        <div className="price-input-outer">
-          <div className="price-input-inner">
-            <div className="price-input-inner-inner">
-              <div className="price-input-wrapper">
-                <input
-                  className="price-input"
-                  type="number"
-                >
-                </input>
-                <span>ETH</span>
-              </div>
-              <div>$0</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="row-header">
-          <div className="row-header-label">
-            BORROW AMOUNT
-          </div>
-        </div>
-
-        <div className="price-input-outer">
-          <div className="price-input-inner">
-            <div className="price-input-inner-inner">
-              <div className="price-input-wrapper">
-                <input
-                  className="price-input"
-                  type="number">
-                </input>
-                <span>DAI</span>
-              </div>
-              <div> ETH</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="leverage-label">Leverage</div>
-        <div className="rc-slider-outer">
-          <div className="rc-slider rc-slider-with-marks">
-            <div className="rc-slider-rail" style={{ "backgroundColor": "rgb(21, 27, 40)" }}>
-            </div>
-            <div className="rc-slider-track" style={{ "backgroundColor": "rgb(255, 184, 210)", left: "0%", right: "auto", width: "0%" }}></div>
-            <div className="rc-slider-step">
-              <span className="rc-slider-dot rc-slider-dot-active .rc-slider-dot--instyle-active"></span>
-              <span className="rc-slider-dot rc-slider-dot--instyle" style={{ left: "25%" }}></span>
-              <span className="rc-slider-dot rc-slider-dot--instyle" style={{ left: "50%" }}></span>
-              <span className="rc-slider-dot rc-slider-dot--instyle" style={{ left: "75%" }}></span>
-              <span className="rc-slider-dot rc-slider-dot--instyle" style={{ left: "100%" }}></span>
-            </div>
-            <div tabIndex={0} className="rc-slider-handle rc-slider-handle--instyle" role="slider" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} aria-disabled="false"></div>
-            <div className="rc-slider-mark">
-              <span className="rc-slider-mark-text rc-slider-mark-text-active rc-slider-mark-text--instyle ">1x</span>
-              <span className="rc-slider-mark-text rc-slider-mark-text--instyle " style={{ left: "25%" }}>2x</span>
-              <span className="rc-slider-mark-text rc-slider-mark-text--instyle " style={{ left: "50%" }}>3x</span>
-              <span className="rc-slider-mark-text rc-slider-mark-text--instyle " style={{ left: "75%" }}>4x</span>
-              <span className="rc-slider-mark-text rc-slider-mark-text--instyle " style={{ transform: "translateX(-80%)", left: "100%" }}>5x</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <AmountInput
+        balance={props.balance}
+        initialCollateral={collateralToReduce}
+        debtAmount={debtToReduce}
+        conversionRate={props.conversionRate}
+        debtErrorMessage={debtErrorMsg}
+        collErrorMessage={collErrorMsg}
+        collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
+        debtTicker={getTokenTickerFromTokenID(props.debtToken)}
+        setCollateralAmount={setCollateraToReduce}
+        setDebtAmount={setDebtToReduce}
+      />
+      <div className="leverage-label">Leverage</div>
+      <SliderRow
+        numberOfMarkers={5}
+        maxLabelX={100}
+        isPercentage={true}
+        leverageRate={percentDebtToReduce}
+        updateLeverageRate={setPercentDebtToReduce}
+        onDragEnd={(rate: number) => {
+          setPercentDebtToReduce(rate)
+          // updateDebtStats()
+        }}
+      />
 
       <div className="slippage-label">Slippage Tolerance</div>
       <div className="priceimpact-input-outer">
