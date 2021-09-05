@@ -1,10 +1,11 @@
 import React, { MouseEvent, useEffect, useRef, useState } from 'react';
-
+import { Color, CSS_RGB_EMERALD_BRIGHT, CSS_RGB_PINK } from '../utils/color';
 interface Props {
   numberOfMarkers: number
   maxLabelX: number
   isPercentage: boolean
   leverageRate: number
+  color: Color
   updateLeverageRate: (rate: number) => void
   onDragEnd: (rate: number) => void
 }
@@ -109,18 +110,26 @@ export function SliderRow(props: Props) {
         </div>
         <div
           className="rc-slider-track"
-          style={{"backgroundColor": "rgb(105, 226, 219)", left: "0%", right: "auto", width: `${guagePercent}%`}
-          }></div>
+          style={{
+            backgroundColor: (props.color === Color.Emerald) ? CSS_RGB_EMERALD_BRIGHT : CSS_RGB_PINK,
+            left: "0%",
+            right: "auto",
+            width: `${guagePercent}%`
+          }}></div>
         <div className="rc-slider-step"
         >
           {
             [...Array(props.numberOfMarkers).keys()].map((v,  i: number) => {
-              const isActive = guagePercent >= getLabelUnit(i, true)
+              const isActive = false // guagePercent >= getLabelUnit(i, true)
               return (
                 <span
                   key={`${unit*i}`}
                   className={`rc-slider-dot ${isActive ? 'rc-slider-dot-active rc-slider-dot--instyle-active' : 'rc-slider-dot--instyle'}`}
-                  style={{left: `${unit*i}%`}}
+                  style={{
+                    left: `${unit*i}%`,
+                    color: (props.color === Color.Emerald) ? CSS_RGB_EMERALD_BRIGHT : CSS_RGB_PINK,
+                    borderColor: (props.color === Color.Emerald) ? CSS_RGB_EMERALD_BRIGHT : CSS_RGB_PINK,
+                  }}
                   onClick={() => onMarkerClick(i)}
                 ></span>
               )
@@ -139,7 +148,7 @@ export function SliderRow(props: Props) {
         <div className="rc-slider-mark">
           {
             [...Array(props.numberOfMarkers).keys()].map((v,  i: number) => {
-              const isActive = guagePercent >= getLabelUnit(i, true)
+              const isActive = false //guagePercent >= getLabelUnit(i, true)
               return (
                 <span
                   key={`${unit*i}`}
@@ -152,13 +161,13 @@ export function SliderRow(props: Props) {
               )
             })
           }
-          <div
+        <div
           className="rc-slider-tooltip rc-slider-tooltip-placement-bottom"
           style={{
             left: `${guagePercent}%`,
             top: "50%",
             position: "relative",
-            width: "4rem"
+            width: "4rem",
         }}>
           <div className="rc-slider-tooltip-content">
             <div className="rc-slider-tooltip-arrow"></div>
@@ -168,7 +177,7 @@ export function SliderRow(props: Props) {
                 boxShadow: "none",
                 borderRadius: "4px",
                 padding: "4px 10px",
-                color: "rgb(105, 226, 219)",
+                color: (props.color === Color.Emerald) ? CSS_RGB_EMERALD_BRIGHT : CSS_RGB_PINK,
                 fontSize: "13px",
                 fontWeight: 500,
                 lineHeight: "15px"

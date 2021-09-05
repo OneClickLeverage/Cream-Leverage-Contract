@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getDebtRatioFromBrowser, getLiquidationPriceFromBrowser, supplyFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
 import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
+import { Color } from '../utils/color';
 import { roundAmount } from '../utils/number';
 import { AmountInput } from './AmountInput';
 import { SliderRow } from './SilderBar';
@@ -168,6 +169,7 @@ export default function LeveragePopUp(props: Props) {
           setLeverageRate(rate)
           updateDebtStats()
         }}
+        color={Color.Emerald}
       />
 
       <div className="slippage-label">Slippage Tolerance</div>
@@ -226,7 +228,7 @@ export default function LeveragePopUp(props: Props) {
             opacity: shouldNotExecute ? 0.2 : 1,
           }}
         >
-          Execute Leverage
+          Leverage
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { deleverageFromBrowser, getDebtRatioFromBrowser, getLiquidationPriceFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
 import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
+import { Color, CSS_RGB_PINK } from '../utils/color';
 import { roundAmount } from '../utils/number';
 import { AmountInput } from './AmountInput';
 import { SliderRow } from './SilderBar';
@@ -39,6 +40,10 @@ export function DeleveragePopUpBody(props: Props) {
   const [netAPY, setNetAPY] = useState<string>("")
   const [liquidationPrice, setLiquidationPrice] = useState<number>(0)
   const [debtRatio, setDebtRatio] = useState<number>(0)
+
+  const isError = debtErrorMsg !== '' || collErrorMsg !== ''
+  const hasInput = collateralToReduce > 0 && debtToReduce > 0
+  const shouldNotExecute = isError || !hasInput;
 
   async function executeDeleverage() {
     await deleverageFromBrowser(window.ethereum, props.myAddress, collateralToReduce, debtToReduce, priceImpact, props.collateralToken, props.debtToken)
@@ -97,7 +102,8 @@ export function DeleveragePopUpBody(props: Props) {
     const totalCollateralInDebtUnit = props.currentCollateral/props.conversionRate
     const debtAmountToReduce = props.currentDebt - debtAmount - totalCollateralInDebtUnit
     setDebtToReduce(roundAmount(debtAmountToReduce, props.debtToken))
-    setCollateraToReduce(roundAmount(debtAmountToReduce/props.conversionRate, props.collateralToken))
+    const boundRoom = 1.05
+    setCollateraToReduce(roundAmount(debtAmountToReduce/props.conversionRate*boundRoom, props.collateralToken))
   }
 
   function calculateDebtFromRate(rate: number, collateral: number): number {
@@ -172,6 +178,7 @@ export function DeleveragePopUpBody(props: Props) {
           setLeverageRate(rate)
           updateDebtStats()
         }}
+        color={Color.Pink}
       />
 
       <div className="slippage-label">Slippage Tolerance</div>
@@ -218,8 +225,21 @@ export function DeleveragePopUpBody(props: Props) {
       </div>
       <div style={{ marginTop: "100px", display: "flex" }}>
         <button
+          type="button"
           onClick={executeDeleverage}
-          className="borrow-button" style={{ width: "100%", marginTop: "6px", marginLeft: "0px" }}>Execute Leverage</button>
+          className="borrow-button"
+          disabled={shouldNotExecute}
+          style={{
+            width: "100%",
+            marginTop: "6px",
+            marginLeft: "0px",
+            cursor: shouldNotExecute ? 'not-allowed' : 'pointer',
+            opacity: shouldNotExecute ? 0.2 : 1,
+            backgroundColor: CSS_RGB_PINK
+          }}
+        >
+          Deleverage
+        </button>
       </div>
     </div> 
   )
