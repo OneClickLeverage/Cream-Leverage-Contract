@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 interface NumberInputProps {
   onInput: (e: any) => void
@@ -53,26 +53,9 @@ interface Props {
   debtErrorMessage: string
   setCollateralAmount: (amount: number) => void
   setDebtAmount: (amount: number) => void
-  setConversionRate: (amount: number) => void
 }
 
 export function AmountInput(props: Props) {
-  useEffect(() => {
-    const getPrice = async () => {
-      try {
-        const resp = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum')
-        const body = await resp.json();
-        return body[0].current_price as number
-      } catch (e) {
-        return 0
-      }
-      
-    }
-    getPrice().then(value => {
-      props.setConversionRate(value)
-    })
-  }, [])
-
   function onDepositAmountInput(e:any) {
     const input = e.target.value as number
     props.setCollateralAmount(Number(input))

@@ -12,13 +12,13 @@ const MAX_LEVERAGE_RATE = 5
 interface Props {
   collateralToken: TokenID,
   debtToken: TokenID,
+  conversionRate: number
 }
 
 export default function LeveragePopUp(props: Props) {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
-  const [conversionRate, setConversionRate] = useState<number>(0)
   const [leverageRate, setLeverageRate] = useState<number>(1)
   const [initialCollateral, setInitialCollateralAmount] = useState<number>(0);
   const [debtAmount, setDebtAmount] = useState<number>(0)
@@ -56,7 +56,7 @@ export default function LeveragePopUp(props: Props) {
   }
 
   function calculateLeverageRate(collateral: number, debt: number): number {
-    const equivalentDebtAmount = debt / conversionRate
+    const equivalentDebtAmount = debt / props.conversionRate
     const total = collateral + equivalentDebtAmount
     const rate = total / collateral
     return rate
@@ -64,7 +64,7 @@ export default function LeveragePopUp(props: Props) {
 
   function calculateDebtFromRate(rate: number, collateral: number): number {
     const total = rate * collateral
-    const debtEquivalent = (total - initialCollateral) * conversionRate
+    const debtEquivalent = (total - initialCollateral) * props.conversionRate
     return debtEquivalent
   }
 
@@ -166,14 +166,13 @@ export default function LeveragePopUp(props: Props) {
         balance={balance}
         initialCollateral={initialCollateral}
         debtAmount={debtAmount}
-        conversionRate={conversionRate}
+        conversionRate={props.conversionRate}
         debtErrorMessage={debtErrorMsg}
         collErrorMessage={collErrorMsg}
         collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
         debtTicker={getTokenTickerFromTokenID(props.debtToken)}
         setCollateralAmount={onSetCollateral}
         setDebtAmount={onSetDebtAmount}
-        setConversionRate={setConversionRate}
       />
         <div className="leverage-label">Leverage</div>
         <SliderRow
