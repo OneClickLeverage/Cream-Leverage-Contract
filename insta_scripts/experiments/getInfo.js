@@ -3,6 +3,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545/"))
 const DSA = require('dsa-connect-1');
 
 const secret = require("../../secret.json");
+const user1 = secret.address1;
 const key1 = secret.key1;
 
 // Abi
@@ -23,15 +24,15 @@ const dsa = new DSA({
   privateKey: key1
 });
 
-async function getDsaAddress(user_address) {
+async function getDsaAddress(dsa, user_address) {
   const account = await dsa.getAccounts(user_address);
   //console.log("account: " + account[0].address)
   return account[0].address;
 }
 
-async function getValue(user_address, coll, debt) {
+async function getValue(dsa, user_address, coll, debt) {
 
-  const [supply_amount, debt_amount] = await getAccountSnapshot(user_address, coll, debt);
+  const [supply_amount, debt_amount] = await getAccountData(dsa, user_address, coll, debt);
 
   const coll_price = await getPrice(coll);
   const debt_price = await getPrice(debt);
@@ -43,37 +44,59 @@ async function getValue(user_address, coll, debt) {
   return [coll_value, debt_value];
 }
 
-async function getRatio(user_address, coll, debt, withdraw_amt, payback_amt, action) {
-  const [coll_value, debt_value] = await getValue(user_address, coll, debt);
+async function getDebtRatio(dsa, user_address, coll, debt, coll_change, debt_change, action) {
+  const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
   const coll_price = await getPrice(coll)
   const debt_price = await getPrice(debt)
+  const hasPosition = await getHasPosition(dsa, user_address, coll, debt);
 
-  if (action == 0) { // current ratio
-    const debt_ratio = debt_value / coll_value;
-    return debt_ratio;
+  let debt_ratio;
 
-  } else if (action == 1) { // only withdraw
-    const _coll_value = coll_value - (withdraw_amt * coll_price);
-    const debt_ratio = debt_value / _coll_value;
-    return debt_ratio;
+  if (action == 0 && !hasPosition) { // expected ratio
+    const _coll_value = coll_change * coll_price;
+    const _debt_value = debt_change * debt_price;
+    debt_ratio = _debt_value / _coll_value;
+    //console.log("0: " + debt_ratio);
 
-  } else if (action == 2) { // only payback
-    const _debt_value = debt_value - (payback_amt * debt_price);
-    const debt_ratio = _debt_value / coll_value;
-    return debt_ratio;
+  } else if (action == 1 && hasPosition) { // current ratio
+    debt_ratio = debt_value / coll_value;
+    //console.log("1: " + debt_ratio);
 
-  } else if (action == 3) { // projected ratio 1: deleverage ( withdraw & payback )
-    const _coll_value = coll_value - (withdraw_amt * coll_price);
-    const _debt_value = debt_value - (payback_amt * debt_price);
-    const debt_ratio = _debt_value / _coll_value;
-    return debt_ratio;
+  } else if (action == 2 && hasPosition) { // For Leverage 
+    const _coll_value = coll_value + (coll_change * coll_price);
+    const _debt_value = debt_value + (debt_change * debt_price);
+    debt_ratio = _debt_value / _coll_value;
+    //console.log("2: " + debt_ratio);
+
+  } else if (action == 3 && hasPosition) { // For Deleverage
+    const _coll_value = coll_value - (coll_change * coll_price);
+    const _debt_value = debt_value - (debt_change * debt_price);
+    debt_ratio = _debt_value / _coll_value;
+    //console.log("3: " + debt_ratio);
+
+  } else {
+    return;
   }
+  return debt_ratio;
 }
 
-//getRatio(0, 3, 0, 0, 0) // => Current Ratio
+async function getHasPosition(dsa, user_address, coll, debt) {
+  const [coll_amt, debt_amt] = await getAccountData(dsa, user_address, coll, debt);
+  let hasPosition;
+  if (coll_amt != 0 || debt_amt != 0) {
+    hasPosition = true;
+    //console.log("hasPosition: " + hasPosition);
+  } else {
+    hasPosition = false;
+    //console.log("hasPosition: " + hasPosition);
+  }
+  return hasPosition;
+}
 
-async function getCurrentLeverage(user_address, coll, debt) {
-  const [coll_value, debt_value] = await getValue(user_address, coll, debt);
+//hasPosition(dsa, user1, tokens[0], tokens[2]);
+
+async function getCurrentLeverage(dsa, user_address, coll, debt) {
+  const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
   const leverage = coll_value / (coll_value - debt_value);
   //console.log("current leverage: "+leverage)
   return leverage;
@@ -99,8 +122,8 @@ async function getLeveragedDebtandColl(debt, initial_coll, leverage) {
 //getLeveragedDebtandColl(3, 2)
 
 // token_id, 0 = eth, 1 = wbtc, 2 = usdc, 3 = dai
-async function getAccountSnapshot(user_address, coll, debt) {
-  const dsaAddress = await getDsaAddress(user_address);
+async function getAccountData(dsa, user_address, coll, debt) {
+  const dsaAddress = await getDsaAddress(dsa, user_address);
 
   const coll_ctoken = new web3.eth.Contract(cToken, coll[2]);
   const debt_ctoken = new web3.eth.Contract(cToken, debt[2]);
@@ -159,19 +182,49 @@ async function getNetAPY(coll_token_id, debt_token_id) {
 
 //getNetAPY(0, 3)
 
-async function getLiquidationPrice(user_address, coll_token_id, debt_token_id, withdraw_amt, payback_amt) {
-  const coll = tokens[coll_token_id];
-  const debt = tokens[debt_token_id];
+async function getLiquidationPrice(dsa, user_address, coll, debt, coll_change, debt_change, action) {
 
-  const [coll_value, debt_value] = await getValue(user_address, coll, debt);
   const coll_price = await getPrice(coll)
-  const _coll_value = coll_value - withdraw_amt;
+  const debt_price = await getPrice(debt)
 
-  const liquidation_price = debt_value / (_coll_value / coll_price) / coll[3];
+  let liquidation_price;
+
+  if (action == 0) { // Expected Liquidation Price
+    const debt_value = debt_price * debt_change;
+    liquidation_price = debt_value / coll_change / coll[7];
+    //console.log("0: " + liquidation_price);
+
+  } else if (action == 1) { // Current Liquidation Price
+    const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
+    liquidation_price = debt_value / (coll_value / coll_price) / coll[7];
+    //console.log("1: " + liquidation_price);
+
+  } else if (action == 2) { // Liquidation Price for Leverage(more deposit and borrow)
+    const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
+    const _coll_value = coll_value + (coll_change * coll_price);
+    const _debt_value = debt_value + (debt_change * debt_price);
+    liquidation_price = _debt_value / (_coll_value / coll_price) / coll[7];
+    //console.log("2 " + liquidation_price);
+
+  } else if (action == 3) { // Liquidation Price for Deleverage(less deposit and debt)
+    const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
+    const _coll_value = coll_value - (coll_change * coll_price);
+    const _debt_value = debt_value - (debt_change * debt_price);
+    liquidation_price = _debt_value / (_coll_value / coll_price) / coll[7];
+    //console.log("3: " + liquidation_price);
+
+  } else {
+    return;
+  }
+
   return liquidation_price;
 }
 
-//getLiquidationPrice(user1, 0, 3, 0, 0)
+//getLiquidationPrice(dsa, "0x70997970c51812dc3a010c7d01b50e0d17dc79c8", 0, 2, 1, 2000, 0)
+//getLiquidationPrice(dsa, "0x70997970c51812dc3a010c7d01b50e0d17dc79c8", 0, 2, 0, 0, 1)
+//getLiquidationPrice(dsa, "0x70997970c51812dc3a010c7d01b50e0d17dc79c8", 0, 2, 1, 3000, 2)
+//getLiquidationPrice(dsa, "0x70997970c51812dc3a010c7d01b50e0d17dc79c8", 0, 2, 1, 3000, 3)
+
 
 async function isFlashloanLev(coll, leverage) {
   const lev_max = coll[3] + 1;
@@ -183,9 +236,15 @@ async function isFlashloanLev(coll, leverage) {
   }
 }
 
-async function isFlashloanDelev(user_address, coll, debt, withdraw_amt, payback_amt) {
+async function isFlashloanDelev(dsa, user_address, coll, debt, withdraw_amt) {
 
-  const interim_debt_ratio = await getRatio(user_address, coll, debt, withdraw_amt, payback_amt, 1);
+  //const interim_debt_ratio = await getRatio(user_address, coll, debt, withdraw_amt, payback_amt, 1);
+
+  const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
+  const coll_price = await getPrice(coll);
+
+  const _coll_value = coll_value - (coll_price * withdraw_amt);
+  const interim_debt_ratio = debt_value / _coll_value;
 
   if (interim_debt_ratio >= coll[3]) {
     return 0; // flashloan
@@ -224,10 +283,10 @@ module.exports = {
   getValue,
 
   // For Frontend
-  getRatio,
+  getDebtRatio,
   getCurrentLeverage,
   getLeveragedDebtandColl,
-  getAccountSnapshot,
+  getAccountData,
   getLiquidationPrice,
   getPrice,
   getAssetAPYs,

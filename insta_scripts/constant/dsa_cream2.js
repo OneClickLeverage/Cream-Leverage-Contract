@@ -7,15 +7,19 @@ const tokens = [
     0.75,
     1E18,
     "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    "ether"
+    "ether",
+    0.8
   ],
 
-  wbtc = [
-    "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
-    "0x197070723CE0D3810a0E47F06E935c30a480D4Fc",
-    "0x8Fc8BFD80d6A9F17Fb98A373023d72531792B431",
-    0.75,
-    8
+  dpi = [
+    "0x1494ca1f11d487c2bbe4543e90080aeba4ba3c2b",
+    "0x2A537Fa9FFaea8C1A41D3C2B68a9cb791529366D",
+    "0x7736Ffb07104c0C400Bb0CC9A7C228452A732992",
+    0.5,
+    1E18,
+    ,
+    "ether",
+    0.55
   ],
 
   usdc = [
@@ -25,7 +29,8 @@ const tokens = [
     0.85,
     1E6,
     ,
-    "mwei"
+    "mwei",
+    0.9
   ],
 
   dai = [
@@ -35,7 +40,8 @@ const tokens = [
     0.85,
     1E18,
     ,
-    "ether"
+    "ether",
+    0.9
   ]
 ]
 

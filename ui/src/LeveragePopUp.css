@@ -125,6 +125,40 @@ text-align: right;
   color: rgb(230, 230, 230);
 }
 
+.price-input-outer--error {
+  padding: 2px;
+  border-radius: 4px;
+  background-color: rgb(226, 105, 105);
+  color: rgb(226, 105, 105);
+}
+
+.price-input--error {
+  color: rgb(226, 105, 105) !important;
+}
+
+.svg-inline--fa {
+  display: inline-block;
+  font-size: inherit;
+  height: 1em;
+  overflow: visible;
+  vertical-align: -0.125em;
+}
+
+.svg-inline--fa.fa-w-18 {
+  width: 1.125em;
+}
+
+svg:not(:root).svg-inline--fa {
+  overflow: visible;
+}
+
+.price-input-error-message {
+  color: black;
+  text-align: center;
+  font-weight: 500;
+  padding: 10px;
+}
+
 .price-input-inner {
   display: flex;
   -moz-box-align: center;
