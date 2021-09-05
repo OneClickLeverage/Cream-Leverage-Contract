@@ -18,7 +18,7 @@ enum TabIndex {
 }
 
 export function LeveragePopUp(props: Props) {
-  const [tabIndex, setTabIndex] = useState<TabIndex>(TabIndex.Deleverage)
+  const [tabIndex, setTabIndex] = useState<TabIndex>(TabIndex.Leverage)
   const [conversionRate, setConversionRate] = useState<number>(0)
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [myAddress, setMyAddress] = useState<string>("")
