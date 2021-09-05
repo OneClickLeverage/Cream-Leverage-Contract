@@ -18,17 +18,13 @@ const oracle = new web3.eth.Contract(oracle_abi, "0x338EEE1F7B89CE6272f302bDC4b9
 // token data
 const { tokens } = require("../constant/dsa_cream2.js");
 
+const { getDsaAddress } = require("./dsa.js");
+
 const dsa = new DSA({
   web3: web3,
   mode: "node",
   privateKey: key1
 });
-
-async function getDsaAddress(dsa, user_address) {
-  const account = await dsa.getAccounts(user_address);
-  //console.log("account: " + account[0].address)
-  return account[0].address;
-}
 
 async function getValue(dsa, user_address, coll, debt) {
 

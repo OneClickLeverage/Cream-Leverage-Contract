@@ -17,7 +17,6 @@ async function build(dsa, userAddress) {
 
 async function hasDSA(dsa, address) {
     const account = await dsa.getAccounts(address);
-    //console.log('dsa account', account)
     return account[0];
 }
 

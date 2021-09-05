@@ -12,7 +12,6 @@ const { cast, getDsaId, hasDSA } = require("./dsa.js");
 const { balanceCheck } = require("./balance_info.js")
 
 async function _deleverage(dsa, user_address, coll, debt, isETH, withdraw_amt, payback_amt, price_impact) {
-
     let bool = await hasDSA(dsa, user_address);
     if (!bool) {
         console.log("No position")
@@ -35,7 +34,7 @@ async function addSpell(dsa, user_address, isETH, coll, debt, withdraw_amt, payb
     // Deposit ( if ETH, convert it into WETH )
     spells = await dsa.Spell();
     // Flashloan check
-    const isFlashloan = await isFlashloanDelev(user_address, coll, debt, withdraw_amt, payback_amt);
+    const isFlashloan = await isFlashloanDelev(dsa, user_address, coll, debt, withdraw_amt, payback_amt);
     console.log("isFlashloan: " + isFlashloan);
     const sold_coll_amt = await getSoldAmtColl(coll, debt, payback_amt, price_impact);
 
