@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
+import { getPriceWithTokenID } from '../../insta_scripts/experiments/fromBrowser';
 import { DeleveragePopUpBody } from './components/DeleveragePopUpBody';
 import LeveragePopUpBody from './components/LeveragePopUpBody';
 import "./LeveragePopUp.css";
@@ -45,9 +46,10 @@ export function LeveragePopUp(props: Props) {
 
     const getPrice = async () => {
       try {
-        const resp = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum')
-        const body = await resp.json();
-        return body[0].current_price as number
+        const collPrice = await getPriceWithTokenID(props.collateralToken)
+        const debtPrice = await getPriceWithTokenID(props.debtToken)
+        const price = collPrice / debtPrice
+        return price
       } catch (e) {
         return 0
       }

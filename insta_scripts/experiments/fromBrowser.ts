@@ -4,7 +4,7 @@ const DSA = require('dsa-connect-1');
 const { tokens } = require("../constant/dsa_cream2.js");
 const { _leverage } = require("./ex11ETHLev");
 const { _deleverage } = require('./ex12ETHDelev')
-const { getDebtRatio, getLiquidationPrice } = require('./getInfo')
+const { getDebtRatio, getLiquidationPrice, getPrice } = require('./getInfo')
 
 function getDSAFromBrowser(windowEth) {
   const web3 = new Web3(windowEth)
@@ -54,4 +54,10 @@ export async function deleverageFromBrowser(windowEth, userAddress, withdraw_amt
   // const debt_amount = 3000;
   // const price_impact = 1; // %
   await _deleverage(dsa, userAddress, coll, debt, isETH, withdraw_amt, payback_amt, price_impact)
+}
+
+export async function getPriceWithTokenID(tokenID) {
+  const tokenInfo = tokens[tokenID]
+  const price = await getPrice(tokenInfo)
+  return price
 }
