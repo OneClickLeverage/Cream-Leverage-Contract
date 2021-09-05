@@ -56,6 +56,8 @@ async function balanceCheck(dsa, user_address, coll, debt) {
     console.log("");
     console.log("coll_price: " + coll_price);
     console.log("debt_price: " + debt_price);
+    const collateralRatio = coll[7]
+    console.log("collateral_ratio: " + collateralRatio);
 
     console.log("");
 
@@ -69,6 +71,7 @@ async function balanceCheck(dsa, user_address, coll, debt) {
       debtRatio: debt_ratio,
       collateralPrice: coll_price,
       debtPrice: debt_price,
+      collateralRatio,
     }
 }
 

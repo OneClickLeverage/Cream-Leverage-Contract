@@ -123,9 +123,16 @@ flex-grow: 1;
 text-align: right;
 }
 
-.eth-balance-color {
-  color: rgb(105, 226, 219);
+.eth-balance {
   text-align: right;
+}
+
+.color-emerald {
+  color: rgb(105, 226, 219);
+}
+
+.color-pink {
+  color: rgb(255, 184, 210);
 }
 
 .price-input-outer {

@@ -41,7 +41,7 @@ async function addSpell(dsa, user_address, isETH, coll, debt, withdraw_amt, payb
     if (isFlashloan == 0) {
 
         const flash_payback_amt = await getPayBackAmt(payback_amt);
-        let _data = await flashSpell(coll, debt, withdraw_amt, payback_amt, sold_coll_amt, flash_payback_amt);
+        let _data = await flashSpell(dsa, coll, debt, withdraw_amt, payback_amt, sold_coll_amt, flash_payback_amt);
         const data = await dsa.flashpool_v2.encodeFlashCastData(_data);
 
         await spells.add({
@@ -94,7 +94,7 @@ async function addSpell(dsa, user_address, isETH, coll, debt, withdraw_amt, payb
     return spells;
 }
 
-async function flashSpell(coll, debt, withdraw_amt, payback_amt, sold_coll_amt, flash_payback_amt) {
+async function flashSpell(dsa, coll, debt, withdraw_amt, payback_amt, sold_coll_amt, flash_payback_amt) {
 
     let spell_flash = await dsa.Spell();
 

@@ -20,11 +20,11 @@ const { tokens } = require("../constant/dsa_cream2.js");
 
 const { getDsaAddress } = require("./dsa.js");
 
-const dsa = new DSA({
-  web3: web3,
-  mode: "node",
-  privateKey: key1
-});
+// const dsa = new DSA({
+//   web3: web3,
+//   mode: "node",
+//   privateKey: key1
+// });
 
 async function getValue(dsa, user_address, coll, debt) {
 
@@ -48,10 +48,10 @@ async function getDebtRatio(dsa, user_address, coll, debt, coll_change, debt_cha
 
   let debt_ratio;
 
-  if (action == 0 && !hasPosition) { // expected ratio
+  if (action == 0 || !hasPosition) { // expected ratio
     const _coll_value = coll_change * coll_price;
     const _debt_value = debt_change * debt_price;
-    debt_ratio = _debt_value / _coll_value;
+    debt_ratio = _debt_value / _coll_value || 0;
     //console.log("0: " + debt_ratio);
 
   } else if (action == 1 && hasPosition) { // current ratio
@@ -120,6 +120,9 @@ async function getLeveragedDebtandColl(debt, initial_coll, leverage) {
 // token_id, 0 = eth, 1 = wbtc, 2 = usdc, 3 = dai
 async function getAccountData(dsa, user_address, coll, debt) {
   const dsaAddress = await getDsaAddress(dsa, user_address);
+  if (!dsaAddress) {
+    return [0,0]
+  }
 
   const coll_ctoken = new web3.eth.Contract(cToken, coll[2]);
   const debt_ctoken = new web3.eth.Contract(cToken, debt[2]);
@@ -182,14 +185,13 @@ async function getLiquidationPrice(dsa, user_address, coll, debt, coll_change, d
 
   const coll_price = await getPrice(coll)
   const debt_price = await getPrice(debt)
+  const hasPosition = await getHasPosition(dsa, user_address, coll, debt);
 
   let liquidation_price;
 
-  if (action == 0) { // Expected Liquidation Price
+  if (action == 0 || !hasPosition) { // Expected Liquidation Price
     const debt_value = debt_price * debt_change;
-    liquidation_price = debt_value / coll_change / coll[7];
-    //console.log("0: " + liquidation_price);
-
+    liquidation_price = debt_value / coll_change / coll[7] || 0;
   } else if (action == 1) { // Current Liquidation Price
     const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
     liquidation_price = debt_value / (coll_value / coll_price) / coll[7];
@@ -287,6 +289,7 @@ module.exports = {
   getPrice,
   getAssetAPYs,
   getNetAPY,
+  getHasPosition,
 
   // For Exections in JS
   getLeverage, // for Frontend, too.

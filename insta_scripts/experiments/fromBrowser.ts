@@ -4,7 +4,7 @@ const DSA = require('dsa-connect-1');
 const { tokens } = require("../constant/dsa_cream2.js");
 const { _leverage } = require("./ex11ETHLev");
 const { _deleverage } = require('./ex12ETHDelev')
-const { getDebtRatio, getLiquidationPrice, getPrice } = require('./getInfo')
+const { getDebtRatio, getLiquidationPrice, getPrice, getHasPosition } = require('./getInfo')
 const { balanceCheck } = require('./balance_info')
 const { hasDSA } = require('./dsa')
 
@@ -81,4 +81,20 @@ export async function hasDSAFromBrowser(windowEth, userAddress) {
   const userHasDSA = await hasDSA(dsa, userAddress)
 
   return userHasDSA
+}
+
+export async function hasPositionFromBrowser(windowEth, userAddress, collTokenID, debtTokenID) {
+  const dsa = getDSAFromBrowser(windowEth)
+  const userHasDSA = await hasDSAFromBrowser(windowEth, userAddress)
+  if (!userHasDSA) {
+    return false
+  }
+
+  // Inputs here
+  const coll = tokens[collTokenID]; // ETH
+  const debt = tokens[debtTokenID]; // USDC = 2, DAI = 3
+
+  const hasPosition = await getHasPosition(dsa, userAddress, coll, debt)
+
+  return hasPosition
 }

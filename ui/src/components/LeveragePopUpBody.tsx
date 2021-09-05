@@ -14,6 +14,10 @@ interface Props {
   conversionRate: number,
   myAddress: string,
   balance: number,
+  currentCollateral: number,
+  currentDebt: number,
+  collateralRatio: number,
+  hasPosition: boolean,
 }
 
 export default function LeveragePopUp(props: Props) {
@@ -98,10 +102,6 @@ export default function LeveragePopUp(props: Props) {
   }
 
   function updateDebtStats() {
-    if (!hasInput) {
-      return
-    }
-
     getDebtRatioFromBrowser(
       window.ethereum,
       props.myAddress,
@@ -160,6 +160,10 @@ export default function LeveragePopUp(props: Props) {
         debtTicker={getTokenTickerFromTokenID(props.debtToken)}
         setCollateralAmount={onSetCollateral}
         setDebtAmount={onSetDebtAmount}
+        isDeleverage={false}
+        currentCollateral={props.currentCollateral}
+        currentDebt={props.currentDebt}
+        hasPosition={props.hasPosition}
       />
       <div className="leverage-label">Leverage</div>
       <SliderRow
@@ -191,7 +195,7 @@ export default function LeveragePopUp(props: Props) {
         </div>
         <div className="row-content">
           <div className="row-content-label">Debt Ratio</div>
-          <div className="row-content-value">{`${(debtRatio * 100).toFixed(2)}%`}</div>
+          <div className="row-content-value">{`${(debtRatio * 100).toFixed(2)}% / ${(props.collateralRatio * 100).toFixed(0)}%`}</div>
         </div>
         <div className="row-content">
           <div className="row-content-label">Liquidation Price</div>

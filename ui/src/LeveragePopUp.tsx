@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import React, { useEffect, useState } from 'react';
-import { getBalanceCheck, getPriceWithTokenID, hasDSAFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
+import { getBalanceCheck, getPriceWithTokenID, hasDSAFromBrowser, hasPositionFromBrowser } from '../../insta_scripts/experiments/fromBrowser';
 import { DeleveragePopUpBody } from './components/DeleveragePopUpBody';
 import LeveragePopUpBody from './components/LeveragePopUpBody';
 import "./LeveragePopUp.css";
@@ -25,9 +25,11 @@ export function LeveragePopUp(props: Props) {
   const [myAddress, setMyAddress] = useState<string>("")
   const [balance, setBalance] = useState<number>(0)
   const [defiBalance, setDefiBalance] = useState<Balance>(ZeroBalance)
+  const [hasPosition, setHasPosition] = useState<boolean>(false)
 
   function onTabClick(i: TabIndex) {
     setTabIndex(i)
+    requestAccount()
   }
 
   async function requestAccount() {
@@ -44,7 +46,11 @@ export function LeveragePopUp(props: Props) {
     if (hasDSA) {
       const balanceInfo = await getBalanceCheck(window.ethereum, address, props.collateralToken, props.debtToken)
       setDefiBalance(balanceInfo)
+
       console.log(balanceInfo)
+
+      const isAvailable = await hasPositionFromBrowser(window.ethereum, address, props.collateralToken, props.debtToken)
+      setHasPosition(isAvailable)
     }
   }
 
@@ -96,6 +102,10 @@ export function LeveragePopUp(props: Props) {
             conversionRate={conversionRate}
             myAddress={myAddress}
             balance={balance}
+            currentDebt={defiBalance.totalDebtAmount}
+            currentCollateral={defiBalance.totalCollateralAmount}
+            collateralRatio={defiBalance.collateralRatio}
+            hasPosition={hasPosition}
           />
         }
         { tabIndex === TabIndex.Deleverage &&
@@ -107,6 +117,8 @@ export function LeveragePopUp(props: Props) {
             balance={balance}
             currentDebt={defiBalance.totalDebtAmount}
             currentCollateral={defiBalance.totalCollateralAmount}
+            collateralRatio={defiBalance.collateralRatio}
+            hasPosition={hasPosition}
           />
         }
       </div>
