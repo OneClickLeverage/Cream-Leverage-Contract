@@ -48,10 +48,20 @@ border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 
 .borrow-tab--active {
   /* color: rgb(255, 184, 210); */
-  color: rgb(105, 226, 219);
+  /* color: rgb(105, 226, 219); */
   transition: all 0.2s ease-out 0s;
   /* border-bottom: 1px solid rgb(255, 184, 210); */
+  /* border-bottom: 1px solid rgb(105, 226, 219); */
+}
+
+.borrow-tab--emerald {
+  color: rgb(105, 226, 219);
   border-bottom: 1px solid rgb(105, 226, 219);
+}
+
+.borrow-tab--pink {
+  color: rgb(255, 184, 210);
+  border-bottom: 1px solid rgb(255, 184, 210);
 }
 
 .borrow-tab--inactive {

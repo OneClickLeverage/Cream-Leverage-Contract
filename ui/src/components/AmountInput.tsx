@@ -84,7 +84,7 @@ export function AmountInput(props: Props) {
         otherPairValue={Number((props.initialCollateral * props.conversionRate).toFixed(2))}
         ticker={props.collateralTicker}
         onInput={onDepositAmountInput}
-        otherPairTicker={'$'}
+        otherPairTicker={props.debtTicker}
         errorMessage={props.collErrorMessage}
       />
       <div className="row-header">
