@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { deleverageFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
+import { deleverageFromBrowser, getDebtRatioFromBrowser, getLiquidationPriceFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
+import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
 import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
 import { AmountInput } from './AmountInput';
 import { SliderRow } from './SilderBar';
@@ -19,15 +20,27 @@ interface Props {
 
 export function DeleveragePopUpBody(props: Props) {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
-
   const [collateralToReduce, setCollateraToReduce] = useState<number>(0)
   const [debtToReduce, setDebtToReduce] = useState<number>(0)
   const [collErrorMsg, setCollErrorMsg] = useState<string>("")
   const [debtErrorMsg, setDebtErrorMsg] = useState<string>("")
   const [percentDebtToReduce, setPercentDebtToReduce] = useState<number>(0)
 
+  // Liquidation Stats
+  const [priceImpact, setPriceImpact] = useState<number>(0.5);
+  const [borrowAPY, setBorrowAPY] = useState<string>("")
+  const [supplyAPY, setSupplyAPY] = useState<string>("")
+  const [netAPY, setNetAPY] = useState<string>("")
+  const [liquidationPrice, setLiquidationPrice] = useState<number>(0)
+  const [debtRatio, setDebtRatio] = useState<number>(0)
+
   async function executeDeleverage() {
-    await deleverageFromBrowser(window.ethereum, props.myAddress, collateralToReduce, debtToReduce, 0.5, props.collateralToken, props.debtToken)
+    await deleverageFromBrowser(window.ethereum, props.myAddress, collateralToReduce, debtToReduce, priceImpact, props.collateralToken, props.debtToken)
+  }
+
+  function onPriceImpactInput(e:any) {
+    const input = e.target.value as number
+    setPriceImpact(input)
   }
 
   function onSetCollateralInput(amount: number) {
@@ -48,14 +61,16 @@ export function DeleveragePopUpBody(props: Props) {
       estimatedDebtToReduce = props.currentDebt
     }
     setDebtToReduce(Number(estimatedDebtToReduce.toFixed(2)))
+    updateDebtStats()
   }
 
   function onSetDebtAmountInput(amount: number) {
     const expectedDebtRatio = (props.currentDebt-amount) / ((props.currentCollateral-collateralToReduce) * props.conversionRate)
 
-    console.log(expectedDebtRatio,(props.currentDebt-amount), ((props.currentCollateral-collateralToReduce) * props.conversionRate))
     if (amount > props.currentDebt) {
       setDebtErrorMsg(`Cannot reduce more than the current debt amount, ${props.currentDebt} ${getTokenTickerFromTokenID(props.debtToken)}`)
+    } else if (amount > (collateralToReduce * props.conversionRate)) {
+      setDebtErrorMsg(`Cannot reduce more than the collateral amount to reduce. Either increase the collateral to reduce or decrease the debt to payback.`)
     } else if (amount < 0) {
       setDebtErrorMsg('Cannot reduce less than 0')
     } else if (expectedDebtRatio > props.collateralRatio) {
@@ -64,13 +79,51 @@ export function DeleveragePopUpBody(props: Props) {
       setDebtErrorMsg('')
     }
     setDebtToReduce(amount)
+    updateDebtStats()
     // const estimatedCollateralToReduce = amount / props.conversionRate
     // setCollateraToReduce(estimatedCollateralToReduce)
+  }
+
+  function updateDebtStats() {
+    getDebtRatioFromBrowser(
+      window.ethereum,
+      props.myAddress,
+      props.collateralToken,
+      props.debtToken,
+      -collateralToReduce,
+      -debtToReduce, 2)
+    .then((ratio: number) => {
+      setDebtRatio(ratio)
+    })
+
+    getLiquidationPriceFromBrowser(
+      window.ethereum,
+      props.myAddress,
+      props.collateralToken,
+      props.debtToken,
+      -collateralToReduce,
+      -debtToReduce, 2)
+    .then((price: number) => {
+      setLiquidationPrice(price)
+    })
+  }
+
+  function roundAmount(amount: number): number {
+    let finalAmount = amount
+    if (props.debtToken === TokenID.DAI || props.debtToken === TokenID.USDC) {
+      finalAmount = Number(amount.toFixed(2))
+    }
+
+    return finalAmount
   }
 
   useEffect(() => {
     if (!isInitialRender) return
 
+    getAssetAPYs(props.collateralToken).then(([, sAPY]:number[]) => setSupplyAPY(sAPY.toFixed(2)))
+    getAssetAPYs(props.debtToken).then(([bAPY]:number[]) => setBorrowAPY(bAPY.toFixed(2)))
+    getNetAPY(props.collateralToken, props.debtToken).then((nAPY: number) => setNetAPY(nAPY.toFixed(2)))
+    updateDebtStats()
 
     if (isInitialRender) {
       setIsInitialRender(false)
@@ -113,7 +166,9 @@ export function DeleveragePopUpBody(props: Props) {
       <div className="priceimpact-input-outer">
         <input
           className="priceimpact-input"
-          type="number" value="0.5">
+          type="number" value="0.5"
+          onInput={onPriceImpactInput}
+        >
         </input>
         <span > % ( default: 0.5% )</span>
       </div>
@@ -124,28 +179,28 @@ export function DeleveragePopUpBody(props: Props) {
         </div>
         <div className="row-content">
           <div className="row-content-label">Debt Ratio</div>
-          <div className="row-content-value">%</div>
+          <div className="row-content-value">{`${(debtRatio * 100).toFixed(2)}% / ${(props.collateralRatio * 100).toFixed(0)}%`}</div>
         </div>
         <div className="row-content">
           <div className="row-content-label">Liquidation Price</div>
-          <div className="row-content-value">$</div>
+          <div className="row-content-value">{`$${(liquidationPrice).toFixed(2)}`}</div>
         </div>
         <div className="row-content">
           <div className="row-content-label">Borrow APY</div>
           <div className="row-content-value">
-            <div>0%</div>
+            <div>{`${borrowAPY}%`}</div>
           </div>
         </div>
         <div className="row-content">
           <div className="row-content-label">Supply APY</div>
           <div className="row-content-value">
-            <div>0%</div>
+              <div>{`${supplyAPY}%`}</div>
           </div>
         </div>
         <div className="row-content">
           <div className="row-content-label">Net APY (supply - borrow)</div>
           <div className="row-content-value">
-            <div>0%</div>
+            <div>{`${netAPY}%`}</div>
           </div>
         </div>
       </div>
