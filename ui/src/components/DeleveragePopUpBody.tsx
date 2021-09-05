@@ -94,6 +94,9 @@ export function DeleveragePopUpBody(props: Props) {
   }
 
   function onLeverageRateChange(rate: number) {
+    if (rate > currentLeverageRate) {
+      return
+    }
     if (debtErrorMsg !== '') {
       setDebtErrorMsg('')
     }
@@ -175,6 +178,9 @@ export function DeleveragePopUpBody(props: Props) {
         leverageRate={leverageRate}
         updateLeverageRate={(onLeverageRateChange)}
         onDragEnd={(rate: number) => {
+          if (rate > currentLeverageRate) {
+            return
+          }
           setLeverageRate(rate)
           updateDebtStats()
         }}
