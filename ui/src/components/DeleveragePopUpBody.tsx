@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { deleverageFromBrowser, getDebtRatioFromBrowser, getLiquidationPriceFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
 import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
+import { roundAmount } from '../utils/number';
 import { AmountInput } from './AmountInput';
 import { SliderRow } from './SilderBar';
 
@@ -18,13 +19,18 @@ interface Props {
   hasPosition: boolean,
 }
 
+const MAX_LEVERAGE_RATE = 5
+
 export function DeleveragePopUpBody(props: Props) {
+  const initialCollateral = props.currentCollateral - (props.currentDebt / props.conversionRate)
+  const currentLeverageRate = Number((props.currentCollateral / initialCollateral).toFixed(2))
+
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [collateralToReduce, setCollateraToReduce] = useState<number>(0)
   const [debtToReduce, setDebtToReduce] = useState<number>(0)
   const [collErrorMsg, setCollErrorMsg] = useState<string>("")
   const [debtErrorMsg, setDebtErrorMsg] = useState<string>("")
-  const [percentDebtToReduce, setPercentDebtToReduce] = useState<number>(0)
+  const [leverageRate, setLeverageRate] = useState<number>(currentLeverageRate)
 
   // Liquidation Stats
   const [priceImpact, setPriceImpact] = useState<number>(0.5);
@@ -80,8 +86,24 @@ export function DeleveragePopUpBody(props: Props) {
     }
     setDebtToReduce(amount)
     updateDebtStats()
-    // const estimatedCollateralToReduce = amount / props.conversionRate
-    // setCollateraToReduce(estimatedCollateralToReduce)
+  }
+
+  function onLeverageRateChange(rate: number) {
+    if (debtErrorMsg !== '') {
+      setDebtErrorMsg('')
+    }
+    setLeverageRate(rate)
+    const debtAmount = calculateDebtFromRate(rate, initialCollateral)
+    const totalCollateralInDebtUnit = props.currentCollateral/props.conversionRate
+    const debtAmountToReduce = props.currentDebt - debtAmount - totalCollateralInDebtUnit
+    setDebtToReduce(roundAmount(debtAmountToReduce, props.debtToken))
+    setCollateraToReduce(roundAmount(debtAmountToReduce/props.conversionRate, props.collateralToken))
+  }
+
+  function calculateDebtFromRate(rate: number, collateral: number): number {
+    const total = rate * collateral
+    const debtEquivalent = (total - initialCollateral) * props.conversionRate
+    return debtEquivalent
   }
 
   function updateDebtStats() {
@@ -108,15 +130,6 @@ export function DeleveragePopUpBody(props: Props) {
     })
   }
 
-  function roundAmount(amount: number): number {
-    let finalAmount = amount
-    if (props.debtToken === TokenID.DAI || props.debtToken === TokenID.USDC) {
-      finalAmount = Number(amount.toFixed(2))
-    }
-
-    return finalAmount
-  }
-
   useEffect(() => {
     if (!isInitialRender) return
 
@@ -129,7 +142,6 @@ export function DeleveragePopUpBody(props: Props) {
       setIsInitialRender(false)
     }
   })
-
 
   return (
     <div className="leverage-body">
@@ -152,13 +164,13 @@ export function DeleveragePopUpBody(props: Props) {
       <div className="leverage-label">Deleverage</div>
       <SliderRow
         numberOfMarkers={5}
-        maxLabelX={100}
-        isPercentage={true}
-        leverageRate={percentDebtToReduce}
-        updateLeverageRate={setPercentDebtToReduce}
+        maxLabelX={MAX_LEVERAGE_RATE}
+        isPercentage={false}
+        leverageRate={leverageRate}
+        updateLeverageRate={(onLeverageRateChange)}
         onDragEnd={(rate: number) => {
-          setPercentDebtToReduce(rate)
-          // updateDebtStats()
+          setLeverageRate(rate)
+          updateDebtStats()
         }}
       />
 

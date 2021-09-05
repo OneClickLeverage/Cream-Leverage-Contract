@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getDebtRatioFromBrowser, getLiquidationPriceFromBrowser, supplyFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
 import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
+import { roundAmount } from '../utils/number';
 import { AmountInput } from './AmountInput';
 import { SliderRow } from './SilderBar';
 
@@ -70,7 +71,7 @@ export default function LeveragePopUp(props: Props) {
       setDebtErrorMsg('')
     }
 
-    setDebtAmount(roundAmount(amount))
+    setDebtAmount(roundAmount(amount, props.debtToken))
     setLeverageRate(rate)
     updateDebtStats()
   }
@@ -97,7 +98,7 @@ export default function LeveragePopUp(props: Props) {
       setDebtErrorMsg('')
     }
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)
-    setDebtAmount(roundAmount(debtAmount))
+    setDebtAmount(roundAmount(debtAmount, props.debtToken))
     setLeverageRate(rate)
   }
 
@@ -123,15 +124,6 @@ export default function LeveragePopUp(props: Props) {
     .then((price: number) => {
       setLiquidationPrice(price)
     })
-  }
-
-  function roundAmount(amount: number): number {
-    let finalAmount = amount
-    if (props.debtToken === TokenID.DAI || props.debtToken === TokenID.USDC) {
-      finalAmount = Number(amount.toFixed(2))
-    }
-
-    return finalAmount
   }
 
   useEffect(() => {
