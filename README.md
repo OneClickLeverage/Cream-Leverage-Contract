@@ -2,15 +2,16 @@
 
 ## Introduction & Demo
 
-OneClickLeverage allows user to create leveraged positions and deleverage them Instantly on Cream Finance. 
+OneClickLeverage app allows users to easily create flexible leverage position and deleverage them on Cream Finance. 
 
-Here is the Demo of taking 3x leveraged ETH position against DAI debt.
+Here is the working demo when creating 3x leverage position with ETH(collateral) and DAI(debt).
 
 // gif video
 
 And this is how deleverage looks like.
 
 // gif video
+
 
 ## UI & UX
 
