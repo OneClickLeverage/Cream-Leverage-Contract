@@ -51,7 +51,7 @@ async function getDebtRatio(dsa, user_address, coll, debt, coll_change, debt_cha
   if (action == 0 || !hasPosition) { // expected ratio
     const _coll_value = coll_change * coll_price;
     const _debt_value = debt_change * debt_price;
-    debt_ratio = _debt_value / _coll_value || 0;
+    debt_ratio = _debt_value / (_coll_value+_debt_value) || 0;
     //console.log("0: " + debt_ratio);
 
   } else if (action == 1 && hasPosition) { // current ratio
@@ -60,14 +60,16 @@ async function getDebtRatio(dsa, user_address, coll, debt, coll_change, debt_cha
 
   } else if (action == 2 && hasPosition) { // For Leverage 
     const _coll_value = coll_value + (coll_change * coll_price);
-    const _debt_value = debt_value + (debt_change * debt_price);
-    debt_ratio = _debt_value / _coll_value;
+    const additional_debt_value = debt_change * debt_price
+    const _debt_value = debt_value + additional_debt_value;
+    debt_ratio = _debt_value / (_coll_value + additional_debt_value);
     //console.log("2: " + debt_ratio);
 
   } else if (action == 3 && hasPosition) { // For Deleverage
     const _coll_value = coll_value - (coll_change * coll_price);
-    const _debt_value = debt_value - (debt_change * debt_price);
-    debt_ratio = _debt_value / _coll_value;
+    const additional_debt_value = debt_change * debt_price
+    const _debt_value = debt_value - additional_debt_value;
+    debt_ratio = _debt_value / (_coll_value - additional_debt_value);
     //console.log("3: " + debt_ratio);
 
   } else {
@@ -200,15 +202,17 @@ async function getLiquidationPrice(dsa, user_address, coll, debt, coll_change, d
   } else if (action == 2) { // Liquidation Price for Leverage(more deposit and borrow)
     const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
     const _coll_value = coll_value + (coll_change * coll_price);
-    const _debt_value = debt_value + (debt_change * debt_price);
-    liquidation_price = _debt_value / (_coll_value / coll_price) / coll[7];
+    const additional_debt_value = debt_change * debt_price
+    const _debt_value = debt_value + additional_debt_value;
+    liquidation_price = _debt_value / ((_coll_value + additional_debt_value) / coll_price) / coll[7];
     //console.log("2 " + liquidation_price);
 
   } else if (action == 3) { // Liquidation Price for Deleverage(less deposit and debt)
     const [coll_value, debt_value] = await getValue(dsa, user_address, coll, debt);
     const _coll_value = coll_value - (coll_change * coll_price);
-    const _debt_value = debt_value - (debt_change * debt_price);
-    liquidation_price = _debt_value / (_coll_value / coll_price) / coll[7];
+    const additional_debt_value = debt_change * debt_price
+    const _debt_value = debt_value - additional_debt_value;
+    liquidation_price = _debt_value / ((_coll_value+additional_debt_value) / coll_price) / coll[7];
     //console.log("3: " + liquidation_price);
 
   } else {
