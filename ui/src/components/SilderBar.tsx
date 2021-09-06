@@ -95,7 +95,7 @@ export function SliderRow(props: Props) {
       >
       <div
         className="rc-slider-outer"
-        style={{marginTop: "42px"}}
+        // style={{marginTop: "42px"}}
         ref={outerRef}
       >
       <div

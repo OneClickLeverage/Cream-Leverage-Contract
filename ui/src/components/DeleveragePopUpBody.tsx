@@ -5,6 +5,8 @@ import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
 import { Color, CSS_RGB_PINK } from '../utils/color';
 import { roundAmount } from '../utils/number';
 import { AmountInput } from './AmountInput';
+import { APYStats } from './APYStats';
+import { LeverageStats } from './LeverageStats';
 import { SliderRow } from './SilderBar';
 
 declare let window: any;
@@ -42,6 +44,9 @@ export function DeleveragePopUpBody(props: Props) {
   const [liquidationPrice, setLiquidationPrice] = useState<number>(0)
   const [debtRatio, setDebtRatio] = useState<number>(0)
   const [isExecuting, setIsExecuting] = useState<boolean>(false)
+
+  const [currentDebtRatio, setCurrentDebtRatio] = useState<number>(0)
+  const [currentLiquidationPrice, setCurrentLiquidationPrice] = useState<number>(0)
 
   const isError = debtErrorMsg !== '' || collErrorMsg !== ''
   const hasInput = collateralToReduce > 0 && debtToReduce > 0
@@ -134,6 +139,9 @@ export function DeleveragePopUpBody(props: Props) {
       -collateralToReduce,
       -debtToReduce, 2)
     .then((ratio: number) => {
+      if (isInitialRender) {
+        setCurrentDebtRatio(ratio)
+      }
       setDebtRatio(ratio)
     })
 
@@ -145,6 +153,9 @@ export function DeleveragePopUpBody(props: Props) {
       -collateralToReduce,
       -debtToReduce, 2)
     .then((price: number) => {
+      if (isInitialRender) {
+        setCurrentLiquidationPrice(price)
+      }
       setLiquidationPrice(price)
     })
   }
@@ -207,38 +218,20 @@ export function DeleveragePopUpBody(props: Props) {
         </input>
         <span > % ( default: 0.5% )</span>
       </div>
-
-      <div className="row" style={{ marginTop: "42px" }}>
-        <div className="row-header" style={{ marginBottom: "12px" }}>
-          <div className="row-header-label">LEVERAGE STATS (EXPECTED)</div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Debt Ratio</div>
-          <div className="row-content-value">{`${(debtRatio * 100).toFixed(2)}% / ${(props.collateralRatio * 100).toFixed(0)}%`}</div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Liquidation Price</div>
-          <div className="row-content-value">{`$${(liquidationPrice).toFixed(2)} / $${props.conversionRate.toFixed(2)}`}</div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Borrow APY</div>
-          <div className="row-content-value">
-            <div>{`${borrowAPY}%`}</div>
-          </div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Supply APY</div>
-          <div className="row-content-value">
-              <div>{`${supplyAPY}%`}</div>
-          </div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Net APY (supply - borrow)</div>
-          <div className="row-content-value">
-            <div>{`${netAPY}%`}</div>
-          </div>
-        </div>
-      </div>
+      <LeverageStats
+        hasPosition={props.hasPosition}
+        currentDebtRatio={currentDebtRatio}
+        debtRatio={debtRatio}
+        collateralRatio={props.collateralRatio}
+        currentLiquidationPrice={currentLiquidationPrice}
+        conversionRate={props.conversionRate}
+        liquidationPrice={liquidationPrice}
+      />
+      <APYStats
+        borrowAPY={borrowAPY}
+        supplyAPY={supplyAPY}
+        netAPY={netAPY}
+      />
       <div style={{ marginTop: "100px", display: "flex" }}>
         <button
           type="button"
