@@ -56,12 +56,6 @@ async function _adjustCream(dsa, user_address, coll, debt, isETH, amount, action
 
     }
 
-    console.log("_method: " + _method)
-    console.log("_arg1: " + _arg1)
-    console.log("_arg2: " + _arg2)
-    console.log("_amount: " + _amount)
-    console.log("_decimal: " + _decimal)
-
     await spells.add({
         connector: "CREAM-A",
         method: _method,
