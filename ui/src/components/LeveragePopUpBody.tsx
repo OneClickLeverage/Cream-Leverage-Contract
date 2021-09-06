@@ -50,7 +50,10 @@ export default function LeveragePopUp(props: Props) {
   }
 
   function onPriceImpactInput(e:any) {
-    const input = e.target.value as number
+    const input = parseFloat(e.target.value)
+    if (isNaN(input)) {
+      return
+    }
     setPriceImpact(input)
   }
 
@@ -184,7 +187,7 @@ export default function LeveragePopUp(props: Props) {
       <div className="priceimpact-input-outer">
         <input
           className="priceimpact-input"
-          type="number" value="0.5"
+          type="number" value={priceImpact}
           onInput={onPriceImpactInput}
         >
         </input>

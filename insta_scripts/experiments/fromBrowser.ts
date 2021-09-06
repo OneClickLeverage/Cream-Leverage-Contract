@@ -6,7 +6,7 @@ const { _leverage } = require("./ex11ETHLev");
 const { _deleverage } = require('./ex12ETHDelev')
 const { getDebtRatio, getLiquidationPrice, getPrice, getHasPosition } = require('./getInfo')
 const { balanceCheck } = require('./balance_info')
-const { hasDSA } = require('./dsa')
+const { hasDSA, build } = require('./dsa')
 
 function getDSAFromBrowser(windowEth) {
   const web3 = new Web3(windowEth)
@@ -97,4 +97,9 @@ export async function hasPositionFromBrowser(windowEth, userAddress, collTokenID
   const hasPosition = await getHasPosition(dsa, userAddress, coll, debt)
 
   return hasPosition
+}
+
+export async function createWallet(windowEth, userAddress) {
+  const dsa = getDSAFromBrowser(windowEth)
+  await build(dsa, userAddress)
 }
