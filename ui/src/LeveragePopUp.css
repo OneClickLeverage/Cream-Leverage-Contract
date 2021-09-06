@@ -652,3 +652,22 @@ cursor: pointer;
 
 .modal-appear{opacity:0;-webkit-transform:translate3d(0,100%,0);transform:translate3d(0,100%,0)}.modal-appear-active{opacity:1;-webkit-transform:translateZ(0);transform:translateZ(0);transition:all .2s}.modal-exit{opacity:1}.modal-exit-active{opacity:0;-webkit-transform:translate3d(0,100%,0);transform:translate3d(0,100%,0);transition:all .2s}.market-table .rdt_TableCell{font-weight:500}.rdt_Pagination{display:none!important}.react-date-picker__wrapper{display:none!important;-webkit-flex-grow:1;flex-grow:1;-webkit-flex-shrink:0;flex-shrink:0;border:thin solid grey}.iceCREAM-calendar{background:#000;font-family:inherit}.iceCREAM-calendar .react-calendar__navigation__label{color:#fff;font-weight:500}.iceCREAM-calendar .react-calendar__navigation__arrow{color:#69e2db;font-weight:500}.iceCREAM-calendar .react-calendar__navigation button:enabled:focus,.iceCREAM-calendar .react-calendar__navigation button:enabled:hover{background-color:unset}.iceCREAM-calendar .react-calendar__navigation button[disabled]{background-color:unset;color:hsla(0,0%,90.2%,.3)}.iceCREAM-calendar .react-calendar__tile{background-color:unset;color:#69e2db;font-weight:500}.iceCREAM-calendar .react-calendar__tile:disabled{background-color:unset;color:hsla(0,0%,90.2%,.3)}.iceCREAM-calendar .react-calendar__month-view__days__day--neighboringMonth{color:hsla(0,0%,90.2%,.8)}.iceCREAM-calendar .react-calendar__tile:enabled:focus,.iceCREAM-calendar .react-calendar__tile:enabled:hover{background-color:#fff;color:#000}
 /*# sourceMappingURL=main.c1b19222.chunk.css.map */
+
+.flex-container {
+  display: flex;
+  /* align-content: flex-end; */
+  justify-content: flex-end;
+}
+
+.position-before {
+  width: 45%;
+  flex: 0 1 40%;
+}
+.position-arrow {
+  text-align: right;
+  width: 1.5rem;
+}
+.position-after {
+  flex: 0 1 40%;
+  text-align: right;
+}
