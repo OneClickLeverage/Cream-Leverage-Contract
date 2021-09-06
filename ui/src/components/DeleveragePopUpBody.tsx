@@ -187,9 +187,6 @@ export function DeleveragePopUpBody(props: Props) {
         setCollateralAmount={onSetCollateralInput}
         setDebtAmount={onSetDebtAmountInput}
         isDeleverage={true}
-        currentCollateral={props.currentCollateral}
-        currentDebt={props.currentDebt}
-        hasPosition={props.hasPosition}
       />
       <div className="leverage-label">Deleverage</div>
       <SliderRow
@@ -226,6 +223,13 @@ export function DeleveragePopUpBody(props: Props) {
         currentLiquidationPrice={currentLiquidationPrice}
         conversionRate={props.conversionRate}
         liquidationPrice={liquidationPrice}
+        currentDebt={props.currentDebt}
+        debtToAdd={debtToReduce}
+        currentCollateral={props.currentCollateral}
+        collateralToAdd={initialCollateral}
+        collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
+        debtTicker={getTokenTickerFromTokenID(props.debtToken)}
+        leverageRate={leverageRate}
       />
       <APYStats
         borrowAPY={borrowAPY}

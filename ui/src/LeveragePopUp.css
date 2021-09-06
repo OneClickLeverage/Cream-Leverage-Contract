@@ -120,7 +120,14 @@ flex-basis: 60%;
 .balance-amount {
   -moz-box-flex: 1;
 flex-grow: 1;
-text-align: right;
+}
+
+.text-align-left {
+  text-align: left;
+}
+
+.text-align-right {
+  text-align: right;
 }
 
 .eth-balance {

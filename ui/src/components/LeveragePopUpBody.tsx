@@ -175,9 +175,6 @@ export default function LeveragePopUp(props: Props) {
         setCollateralAmount={onSetCollateral}
         setDebtAmount={onSetDebtAmount}
         isDeleverage={false}
-        currentCollateral={props.currentCollateral}
-        currentDebt={props.currentDebt}
-        hasPosition={props.hasPosition}
       />
       <div className="leverage-label">Leverage</div>
       <SliderRow
@@ -211,6 +208,13 @@ export default function LeveragePopUp(props: Props) {
         currentLiquidationPrice={currentLiquidationPrice}
         conversionRate={props.conversionRate}
         liquidationPrice={liquidationPrice}
+        currentDebt={props.currentDebt}
+        debtToAdd={debtAmount}
+        currentCollateral={props.currentCollateral}
+        collateralToAdd={initialCollateral}
+        collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
+        debtTicker={getTokenTickerFromTokenID(props.debtToken)}
+        leverageRate={leverageRate}
       />
       <APYStats
         borrowAPY={borrowAPY}
