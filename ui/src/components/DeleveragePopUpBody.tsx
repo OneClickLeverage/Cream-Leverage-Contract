@@ -224,9 +224,9 @@ export function DeleveragePopUpBody(props: Props) {
         conversionRate={props.conversionRate}
         liquidationPrice={liquidationPrice}
         currentDebt={props.currentDebt}
-        debtToAdd={debtToReduce}
+        debtToAdd={-debtToReduce}
         currentCollateral={props.currentCollateral}
-        collateralToAdd={initialCollateral}
+        collateralToAdd={-collateralToReduce}
         collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
         debtTicker={getTokenTickerFromTokenID(props.debtToken)}
         leverageRate={leverageRate}

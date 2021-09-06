@@ -29,7 +29,6 @@ export default function LeveragePopUp(props: Props) {
   const initialCapital = props.currentCollateral - (props.currentDebt / props.conversionRate)
   const currentLeverageRate = Number((props.currentCollateral / initialCapital).toFixed(2))
 
-  console.log(currentLeverageRate)
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [leverageRate, setLeverageRate] = useState<number>(currentLeverageRate)
   const [initialCollateral, setInitialCollateralAmount] = useState<number>(props.currentCollateral);

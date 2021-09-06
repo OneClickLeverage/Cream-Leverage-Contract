@@ -30,11 +30,37 @@ interface Props {
 }
 
 export function LeverageStats(props: Props) {
+  const nextDebt = props.debtToAdd + props.currentDebt
+  console.log()
+  const nextTotalDebtInColl = nextDebt /props.conversionRate
+  const nextTotalCollateral = props.currentCollateral+props.collateralToAdd+(props.debtToAdd/props.conversionRate);
+  const currentDebtInColl = props.currentDebt/props.conversionRate
+
   return (
     <>
       <div className="row" style={{ marginTop: "32px" }}>
           <div className="row-header" style={{ marginBottom: "12px" }}>
             <div className="row-header-label">POSITION</div>
+          </div>
+          <div className="row-content">
+            <div className="row-content-label">
+              Collateral Without Debt:&nbsp;
+            </div>
+            <span className={`row-content-value eth-balance`}>
+              <span>
+                {`${(props.currentCollateral - (currentDebtInColl)).toFixed(4)} ${props.collateralTicker}`}
+              </span>
+              { props.hasPosition &&
+                <span>
+                  {` -> `}
+                </span>
+              }
+              { props.hasPosition &&
+                <span className="color-emerald">
+                  {`${(nextTotalCollateral - nextTotalDebtInColl).toFixed(4)} ${props.collateralTicker}`}
+                </span>
+              }
+            </span>
           </div>
           <div className="row-content">
             <div className="row-content-label">
@@ -51,7 +77,7 @@ export function LeverageStats(props: Props) {
               }
               { props.hasPosition &&
                 <span className="color-emerald">
-                  {`${(props.currentCollateral+props.collateralToAdd).toFixed(4)} ${props.collateralTicker}`}
+                  {`${(nextTotalCollateral).toFixed(4)} ${props.collateralTicker}`}
                 </span>
               }
             </span>
@@ -62,13 +88,13 @@ export function LeverageStats(props: Props) {
             </div>
             <span className={`row-content-value eth-balance`}>
               <span>
-                {`~${((props.currentDebt/props.conversionRate) || 0).toFixed(4)} ${props.collateralTicker}`}
+                {`~${((currentDebtInColl) || 0).toFixed(4)} ${props.collateralTicker}`}
               </span>
               <span>
                 {` -> `}
               </span>
               <span className="color-pink">
-                {`~${(((props.debtToAdd + props.currentDebt)/props.conversionRate) || 0).toFixed(4)} ${props.collateralTicker}`}
+                {`~${(nextTotalDebtInColl || 0).toFixed(4)} ${props.collateralTicker}`}
               </span>
             </span>
           </div>
@@ -84,7 +110,7 @@ export function LeverageStats(props: Props) {
                 {` -> `}
               </span>
               <span className="color-pink">
-                {`${(props.debtToAdd + props.currentDebt).toFixed(2)} ${props.debtTicker}`}
+                {`${(nextDebt).toFixed(2)} ${props.debtTicker}`}
               </span>
             </span>
           </div>
