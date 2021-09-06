@@ -26,12 +26,10 @@ interface Props {
   debtTicker: string
   collateralTicker: string
   leverageRate: number
+  currentLeverageRate: number
 }
 
 export function LeverageStats(props: Props) {
-  const initialCapital = props.currentCollateral - (props.currentDebt / props.conversionRate)
-  const currentLeverageRate = Number((props.currentCollateral / initialCapital).toFixed(2))
-
   return (
     <>
       <div className="row" style={{ marginTop: "32px" }}>
@@ -96,7 +94,7 @@ export function LeverageStats(props: Props) {
             </div>
             <span className={`row-content-value eth-balance`}>
               <span>
-                {`${currentLeverageRate.toFixed(1)}x`}
+                {`${props.currentLeverageRate.toFixed(1)}x`}
               </span>
               <span>
                 {` -> `}

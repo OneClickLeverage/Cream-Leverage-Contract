@@ -7,7 +7,7 @@ import { roundAmount } from '../utils/number';
 import { AmountInput } from './AmountInput';
 import { APYStats } from './APYStats';
 import { LeverageStats } from './LeverageStats';
-import { SliderRow } from './SilderBar';
+import { SliderBar } from './SliderBar';
 
 declare let window: any;
 interface Props {
@@ -189,7 +189,7 @@ export function DeleveragePopUpBody(props: Props) {
         isDeleverage={true}
       />
       <div className="leverage-label">Deleverage</div>
-      <SliderRow
+      <SliderBar
         numberOfMarkers={5}
         maxLabelX={MAX_LEVERAGE_RATE}
         isPercentage={false}
@@ -230,13 +230,14 @@ export function DeleveragePopUpBody(props: Props) {
         collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
         debtTicker={getTokenTickerFromTokenID(props.debtToken)}
         leverageRate={leverageRate}
+        currentLeverageRate={currentLeverageRate}
       />
       <APYStats
         borrowAPY={borrowAPY}
         supplyAPY={supplyAPY}
         netAPY={netAPY}
       />
-      <div style={{ marginTop: "100px", display: "flex" }}>
+      <div style={{ marginTop: "32px", display: "flex" }}>
         <button
           type="button"
           onClick={executeDeleverage}

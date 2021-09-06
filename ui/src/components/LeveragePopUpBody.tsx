@@ -7,7 +7,7 @@ import { roundAmount } from '../utils/number';
 import { AmountInput } from './AmountInput';
 import { APYStats } from './APYStats';
 import { LeverageStats } from './LeverageStats';
-import { SliderRow } from './SilderBar';
+import { SliderBar } from './SliderBar';
 
 declare let window: any;
 
@@ -26,10 +26,14 @@ interface Props {
 }
 
 export default function LeveragePopUp(props: Props) {
+  const initialCapital = props.currentCollateral - (props.currentDebt / props.conversionRate)
+  const currentLeverageRate = Number((props.currentCollateral / initialCapital).toFixed(2))
+
+  console.log(currentLeverageRate)
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
-  const [leverageRate, setLeverageRate] = useState<number>(1)
-  const [initialCollateral, setInitialCollateralAmount] = useState<number>(0);
-  const [debtAmount, setDebtAmount] = useState<number>(0)
+  const [leverageRate, setLeverageRate] = useState<number>(currentLeverageRate)
+  const [initialCollateral, setInitialCollateralAmount] = useState<number>(props.currentCollateral);
+  const [debtAmount, setDebtAmount] = useState<number>(props.currentDebt)
   const [priceImpact, setPriceImpact] = useState<number>(0.5);
   const [borrowAPY, setBorrowAPY] = useState<string>("")
   const [supplyAPY, setSupplyAPY] = useState<string>("")
@@ -100,6 +104,7 @@ export default function LeveragePopUp(props: Props) {
 
     if (rate > MAX_LEVERAGE_RATE) {
       setCollErrorMsg(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
+      rate = MAX_LEVERAGE_RATE
     }
     setInitialCollateralAmount(amount)
     setLeverageRate(rate)
@@ -177,12 +182,12 @@ export default function LeveragePopUp(props: Props) {
         isDeleverage={false}
       />
       <div className="leverage-label">Leverage</div>
-      <SliderRow
+      <SliderBar
         numberOfMarkers={5}
         maxLabelX={MAX_LEVERAGE_RATE}
         isPercentage={false}
         leverageRate={leverageRate}
-        updateLeverageRate={(onLeverageRateChange)}
+        updateLeverageRate={onLeverageRateChange}
         onDragEnd={(rate: number) => {
           setLeverageRate(rate)
           updateDebtStats()
@@ -215,13 +220,14 @@ export default function LeveragePopUp(props: Props) {
         collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
         debtTicker={getTokenTickerFromTokenID(props.debtToken)}
         leverageRate={leverageRate}
+        currentLeverageRate={currentLeverageRate}
       />
       <APYStats
         borrowAPY={borrowAPY}
         supplyAPY={supplyAPY}
         netAPY={netAPY}
       />
-      <div style={{ marginTop: "100px", display: "flex" }}>
+      <div style={{ marginTop: "32px", display: "flex" }}>
         <button
           type="button"
           onClick={executeSupply}

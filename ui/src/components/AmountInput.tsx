@@ -21,7 +21,7 @@ function NumberInput(props: NumberInputProps) {
               className={`price-input ${isError ? 'price-input--error' : ''}`}
               type="number"
               onInput={props.onInput}
-              value={props.value === 0 ? '' : props.value}
+              value={props.value}
             >
             </input>
             <span>{props.ticker}</span>

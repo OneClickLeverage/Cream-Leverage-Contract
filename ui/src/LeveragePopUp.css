@@ -13,9 +13,9 @@ body {
   min-width: 540px;
   -moz-box-align: center;
   align-items: center;
-  min-width: 335px;
   display: flex;
   flex-direction: column;
+  /* min-width: 570px; */
 }
 
 .leverage-inner {

@@ -1,16 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { App } from './App';
 import './index.css';
-import { LeveragePopUp } from './LeveragePopUp';
 import reportWebVitals from './reportWebVitals';
-import { TokenID } from './types/TokenID';
 
 ReactDOM.render(
   <React.StrictMode>
-    <LeveragePopUp
-      collateralToken={TokenID.ETH}
-      debtToken={TokenID.DAI}
-    />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );

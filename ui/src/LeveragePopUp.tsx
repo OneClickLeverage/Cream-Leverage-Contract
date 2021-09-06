@@ -73,7 +73,7 @@ export function LeveragePopUp(props: Props) {
       const userHasDSA = await hasDSAFromBrowser(window.ethereum, address)
       setHasDSA(userHasDSA)
       if (userHasDSA) {
-        checkBalances(address)
+        await checkBalances(address)
       }
     } catch (e: any) {
       setErrorMsg(e.data.message.toString() || e.message)

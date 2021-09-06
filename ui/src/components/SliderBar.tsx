@@ -10,7 +10,7 @@ interface Props {
   onDragEnd: (rate: number) => void
 }
 
-export function SliderRow(props: Props) {
+export function SliderBar(props: Props) {
   const railRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null)
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
