@@ -14,7 +14,9 @@
     "ethereum-waffle": "^3.4.0",
     "ethereumjs-abi": "^0.6.8",
     "ethers": "^5.4.5",
-    "hardhat": "^2.6.1"
+    "hardhat": "^2.6.1",
+    "postcss": "^8.3.6",
+    "webpack": "^4.44.2"
   },
   "dependencies": {
     "@ethereumjs/tx": "^3.1.0",

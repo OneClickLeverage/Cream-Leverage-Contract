@@ -7,7 +7,6 @@
 "InstaMemory" = 0x8a5419CfC711B2343c17a6ABf4B2bAFaBb06957F
 
 "InstaAccountV2" = 0xFE02a32Cbe0CB9ad9A945576A5bb53A3C123A3A3
-"InstaAccountV2(Proxy(MINE))" = 0x867792c1cae06f418be82cd23dECd0FCA4272A13
 
 "InstaDefaultImplementation" = 0x28aDcDC02Ca7B3EDf11924102726066AA0fA7010
 "InstaImplementations" = 0xCBA828153d3a85b30B5b912e1f2daCac5816aE9D
@@ -33,28 +32,6 @@
 
     // FlashloanLender for CreamV1: https://etherscan.io/address/0xa8682Cfd2B6c714d2190fA38863d545c7a0b73D5#code
     // FlashloanLender for IronBank: https://etherscan.io/address/0x1a21ab52d1ca1312232a72f4cf4389361a479829#code
-
-    // Signature : 
-    //account =
-/*
-
-- Unnecessary Components for CreamLev
- 1. InstaMemory: SetUnit, etc...
- 2. InstaList: AccountLink, etc...
- 3. Implementation_m1: origin param for cast
- 4.
-
-
-- Modification Idea for CreamLev
- 1. Per Contract Wallet for per address
- 2. Overall modification in dsa-connect npm module
-   - Addresses change
-   - parameters change
- 3.
-
-
-*/
-
 
     //"InstaConnectors" = 0xD6A602C01a023B98Ecfb29Df02FBA380d3B21E0c
     //"InstaConnectorsV2Proxy" = 0x7D53E606308A2E0A1D396F30dc305cc7f8483436
