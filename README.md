@@ -18,7 +18,7 @@ And this is how deleverage looks like.
 - First, users need to create an account but only at the beginning.
 
 ### Easy-to-Use
-- With ETH, users can literally take leverage with one click. With ERC20 tokens listed on Cream Finance, An approval of deposited token for the account is neccesary. 
+- With ETH, users can literally take leverage with one click. With ERC20 tokens listed on Cream Finance, An approval for the account is neccesary. 
 - As the demo shows, users can dynamically specify how much you leverage or deleverage your position by slider on the user interface. 
 - Expected outcomes of users' positions, such as debt ratio, leverage, liquidation price, and net apy are explicitly shown to them.
 
