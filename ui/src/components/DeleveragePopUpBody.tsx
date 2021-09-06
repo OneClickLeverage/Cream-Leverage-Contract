@@ -94,11 +94,11 @@ export function DeleveragePopUpBody(props: Props) {
   }
 
   function onLeverageRateChange(rate: number) {
-    if (rate > currentLeverageRate) {
-      return
-    }
     if (debtErrorMsg !== '') {
       setDebtErrorMsg('')
+    } else if (rate > currentLeverageRate) {
+      setDebtErrorMsg('Cannot reduce less than 0')
+      return
     }
     setLeverageRate(rate)
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)

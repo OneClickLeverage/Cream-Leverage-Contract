@@ -98,6 +98,9 @@ export default function LeveragePopUp(props: Props) {
     if (debtErrorMsg !== '') {
       setDebtErrorMsg('')
     }
+    if (initialCollateral <= 0) {
+      setCollErrorMsg('Set the collateral amount first')
+    }
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)
     setDebtAmount(roundAmount(debtAmount, props.debtToken))
     setLeverageRate(rate)
