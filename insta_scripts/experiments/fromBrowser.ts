@@ -4,6 +4,7 @@ const DSA = require('dsa-connect-1');
 const { tokens } = require("../constant/dsa_cream2.js");
 const { _leverage } = require("./ex11ETHLev");
 const { _deleverage } = require('./ex12ETHDelev')
+const { _adjustCream } = require("./ex13Adjust");
 const { getDebtRatio, getLiquidationPrice, getPrice, getHasPosition } = require('./getInfo')
 const { balanceCheck } = require('./balance_info')
 const { hasDSA, build } = require('./dsa')
@@ -102,4 +103,26 @@ export async function hasPositionFromBrowser(windowEth, userAddress, collTokenID
 export async function createWallet(windowEth, userAddress) {
   const dsa = getDSAFromBrowser(windowEth)
   await build(dsa, userAddress)
+}
+
+export const AdjustCreamAction = {
+  Deposit: 0,
+  Borrow: 1,
+  Withdraw: 2,
+  Payback: 3,
+}
+
+export async function adjustCreamFromBrowser(windowEth, userAddress, collTokenID, debtTokenID, amount, action) {
+  const dsa = getDSAFromBrowser(windowEth)
+  const userHasDSA = await hasDSAFromBrowser(windowEth, userAddress)
+  if (!userHasDSA) {
+    return false
+  }
+
+  // Inputs here
+  const coll = tokens[collTokenID]; // ETH
+  const debt = tokens[debtTokenID]; // USDC = 2, DAI = 3
+  const isETH = collTokenID === 0 ? 0 : 1; // if initital deposit is ETH => 0, otherwise e.g WETH => 1.
+
+  await _adjustCream(dsa, userAddress, coll, debt, isETH, amount, action);
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { deleverageFromBrowser, getDebtRatioFromBrowser, getLiquidationPriceFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
+import { AdjustCreamAction, adjustCreamFromBrowser, deleverageFromBrowser, getDebtRatioFromBrowser, getLiquidationPriceFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
 import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
 import { Color, CSS_RGB_PINK } from '../utils/color';
@@ -49,13 +49,17 @@ export function DeleveragePopUpBody(props: Props) {
   const [currentLiquidationPrice, setCurrentLiquidationPrice] = useState<number>(0)
 
   const isError = debtErrorMsg !== '' || collErrorMsg !== ''
-  const hasInput = collateralToReduce > 0 && debtToReduce > 0
+  const hasInput = collateralToReduce > 0 || debtToReduce > 0
   const shouldNotExecute = isError || !hasInput || isExecuting;
 
   async function executeDeleverage() {
     setIsExecuting(true)
-    await deleverageFromBrowser(window.ethereum, props.myAddress, collateralToReduce, debtToReduce, priceImpact, props.collateralToken, props.debtToken)
-    props.updateBalances()
+    if (collateralToReduce !== 0 && debtToReduce === 0) {
+      await adjustCreamFromBrowser(window.ethereum, props.myAddress, props.collateralToken, props.debtToken, collateralToReduce, AdjustCreamAction.Withdraw)
+    } else {
+      await deleverageFromBrowser(window.ethereum, props.myAddress, collateralToReduce, debtToReduce, priceImpact, props.collateralToken, props.debtToken)
+    }
+    await props.updateBalances()
     setIsExecuting(false)
   }
 
@@ -93,7 +97,7 @@ export function DeleveragePopUpBody(props: Props) {
 
     if (amount > props.currentDebt) {
       setDebtErrorMsg(`Cannot reduce more than the current debt amount, ${props.currentDebt} ${getTokenTickerFromTokenID(props.debtToken)}`)
-    } else if (amount > (collateralToReduce * props.conversionRate)) {
+    } else if (amount > (collateralToReduce * props.conversionRate) && collateralToReduce !== 0) {
       setDebtErrorMsg(`Cannot reduce more than the collateral amount to reduce. Either increase the collateral to reduce or decrease the debt to payback.`)
     } else if (amount < 0) {
       setDebtErrorMsg('Cannot reduce less than 0')
@@ -112,7 +116,6 @@ export function DeleveragePopUpBody(props: Props) {
     }
     if (rate > currentLeverageRate) {
       setDebtErrorMsg('Cannot add more leverage')
-      console.log('inside')
       return
     }
     setLeverageRate(rate)

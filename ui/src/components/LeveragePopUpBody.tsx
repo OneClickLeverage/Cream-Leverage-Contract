@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getDebtRatioFromBrowser, getLiquidationPriceFromBrowser, supplyFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
+import { AdjustCreamAction, adjustCreamFromBrowser, getDebtRatioFromBrowser, getLiquidationPriceFromBrowser, supplyFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
 import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
 import { Color } from '../utils/color';
@@ -46,12 +46,16 @@ export default function LeveragePopUp(props: Props) {
   const [isExecuting, setIsExecuting] = useState<boolean>(false)
 
   const isError = debtErrorMsg !== '' || collErrorMsg !== ''
-  const hasInput = initialCollateral > 0 && debtAmount > 0
+  const hasInput = initialCollateral > 0 || debtAmount > 0
   const shouldNotExecute = isError || !hasInput || isExecuting;
 
   async function executeSupply() {
     setIsExecuting(true)
-    await supplyFromBrowser(window.ethereum, props.myAddress, initialCollateral, debtAmount, priceImpact, props.collateralToken, props.debtToken)
+    if (debtAmount === 0 && initialCollateral !== 0) {
+      await adjustCreamFromBrowser(window.ethereum, props.myAddress, props.collateralToken, props.debtToken, initialCollateral, AdjustCreamAction.Deposit)
+    } else {
+      await supplyFromBrowser(window.ethereum, props.myAddress, initialCollateral, debtAmount, priceImpact, props.collateralToken, props.debtToken)
+    }
     setIsExecuting(false)
     props.updateBalances()
   }
