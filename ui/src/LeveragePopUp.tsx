@@ -76,7 +76,7 @@ export function LeveragePopUp(props: Props) {
         await checkBalances(address)
       }
     } catch (e: any) {
-      setErrorMsg(e.data.message.toString() || e.message)
+      setErrorMsg(e.data?.message?.toString() || e.message)
     }
     setIsLoading(false)
   }

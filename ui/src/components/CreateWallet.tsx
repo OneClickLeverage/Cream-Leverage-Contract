@@ -15,18 +15,13 @@ export function CreateWallet(props: Props) {
     try {
       await createWallet(window.ethereum, props.userAddress)
       window.location.reload()
-      // props.onCreateWallet()
     } catch (e: any) {
-      setErrMsg(e.message.toString())
+      setErrMsg(e.message?.toString())
     }
   }
   return (
     <div
       className="leverage-body"
-      style={{
-        width: "100vw",
-        height: "100vh",
-      }}
     >
       <div
         className="row-content"
