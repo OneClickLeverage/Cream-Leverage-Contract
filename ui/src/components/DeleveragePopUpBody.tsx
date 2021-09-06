@@ -18,6 +18,7 @@ interface Props {
   currentCollateral: number,
   collateralRatio: number,
   hasPosition: boolean,
+  updateBalances: () => void,
 }
 
 const MAX_LEVERAGE_RATE = 5
@@ -40,13 +41,17 @@ export function DeleveragePopUpBody(props: Props) {
   const [netAPY, setNetAPY] = useState<string>("")
   const [liquidationPrice, setLiquidationPrice] = useState<number>(0)
   const [debtRatio, setDebtRatio] = useState<number>(0)
+  const [isExecuting, setIsExecuting] = useState<boolean>(false)
 
   const isError = debtErrorMsg !== '' || collErrorMsg !== ''
   const hasInput = collateralToReduce > 0 && debtToReduce > 0
-  const shouldNotExecute = isError || !hasInput;
+  const shouldNotExecute = isError || !hasInput || isExecuting;
 
   async function executeDeleverage() {
+    setIsExecuting(true)
     await deleverageFromBrowser(window.ethereum, props.myAddress, collateralToReduce, debtToReduce, priceImpact, props.collateralToken, props.debtToken)
+    props.updateBalances()
+    setIsExecuting(false)
   }
 
   function onPriceImpactInput(e:any) {
@@ -96,8 +101,10 @@ export function DeleveragePopUpBody(props: Props) {
   function onLeverageRateChange(rate: number) {
     if (debtErrorMsg !== '') {
       setDebtErrorMsg('')
-    } else if (rate > currentLeverageRate) {
-      setDebtErrorMsg('Cannot reduce less than 0')
+    }
+    if (rate > currentLeverageRate) {
+      setDebtErrorMsg('Cannot add more leverage')
+      console.log('inside')
       return
     }
     setLeverageRate(rate)
@@ -208,7 +215,7 @@ export function DeleveragePopUpBody(props: Props) {
         </div>
         <div className="row-content">
           <div className="row-content-label">Liquidation Price</div>
-          <div className="row-content-value">{`$${(liquidationPrice).toFixed(2)}`}</div>
+          <div className="row-content-value">{`$${(liquidationPrice).toFixed(2)} / $${props.conversionRate.toFixed(2)}`}</div>
         </div>
         <div className="row-content">
           <div className="row-content-label">Borrow APY</div>

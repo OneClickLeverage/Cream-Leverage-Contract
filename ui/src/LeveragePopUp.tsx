@@ -44,14 +44,15 @@ export function LeveragePopUp(props: Props) {
 
     const hasDSA = await hasDSAFromBrowser(window.ethereum, address)
     if (hasDSA) {
-      const balanceInfo = await getBalanceCheck(window.ethereum, address, props.collateralToken, props.debtToken)
-      setDefiBalance(balanceInfo)
-
-      console.log(balanceInfo)
-
-      const isAvailable = await hasPositionFromBrowser(window.ethereum, address, props.collateralToken, props.debtToken)
-      setHasPosition(isAvailable)
+      checkBalances(address)
     }
+  }
+
+  async function checkBalances(address: string) {
+    const balanceInfo = await getBalanceCheck(window.ethereum, address, props.collateralToken, props.debtToken)
+    setDefiBalance(balanceInfo)
+    const isAvailable = await hasPositionFromBrowser(window.ethereum, address, props.collateralToken, props.debtToken)
+    setHasPosition(isAvailable)
   }
 
   async function getPrice() {
@@ -106,6 +107,7 @@ export function LeveragePopUp(props: Props) {
             currentCollateral={defiBalance.totalCollateralAmount}
             collateralRatio={defiBalance.collateralRatio}
             hasPosition={hasPosition}
+            updateBalances={() => checkBalances(myAddress)}
           />
         }
         { tabIndex === TabIndex.Deleverage &&
@@ -119,6 +121,7 @@ export function LeveragePopUp(props: Props) {
             currentCollateral={defiBalance.totalCollateralAmount}
             collateralRatio={defiBalance.collateralRatio}
             hasPosition={hasPosition}
+            updateBalances={() => checkBalances(myAddress)}
           />
         }
       </div>

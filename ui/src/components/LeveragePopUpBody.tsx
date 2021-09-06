@@ -20,6 +20,7 @@ interface Props {
   currentDebt: number,
   collateralRatio: number,
   hasPosition: boolean,
+  updateBalances: () => void
 }
 
 export default function LeveragePopUp(props: Props) {
@@ -35,13 +36,17 @@ export default function LeveragePopUp(props: Props) {
   const [debtErrorMsg, setDebtErrorMsg] = useState<string>("")
   const [debtRatio, setDebtRatio] = useState<number>(0)
   const [liquidationPrice, setLiquidationPrice] = useState<number>(0)
+  const [isExecuting, setIsExecuting] = useState<boolean>(false)
 
   const isError = debtErrorMsg !== '' || collErrorMsg !== ''
   const hasInput = initialCollateral > 0 && debtAmount > 0
-  const shouldNotExecute = isError || !hasInput;
+  const shouldNotExecute = isError || !hasInput || isExecuting;
 
   async function executeSupply() {
+    setIsExecuting(true)
     await supplyFromBrowser(window.ethereum, props.myAddress, initialCollateral, debtAmount, priceImpact, props.collateralToken, props.debtToken)
+    setIsExecuting(false)
+    props.updateBalances()
   }
 
   function onPriceImpactInput(e:any) {
@@ -196,7 +201,7 @@ export default function LeveragePopUp(props: Props) {
         </div>
         <div className="row-content">
           <div className="row-content-label">Liquidation Price</div>
-          <div className="row-content-value">{`$${(liquidationPrice).toFixed(2)}`}</div>
+          <div className="row-content-value">{`$${(liquidationPrice).toFixed(2)} / $${props.conversionRate.toFixed(2)}`}</div>
         </div>
         <div className="row-content">
           <div className="row-content-label">Borrow APY</div>
