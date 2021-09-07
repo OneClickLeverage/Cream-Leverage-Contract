@@ -235,7 +235,7 @@ export default function LeveragePopUp(props: Props) {
         supplyAPY={supplyAPY}
         netAPY={netAPY}
       />
-      <div style={{ marginTop: "32px", display: "flex" }}>
+      <div style={{ marginTop: "28px", display: "flex" }}>
         <button
           type="button"
           onClick={executeSupply}
