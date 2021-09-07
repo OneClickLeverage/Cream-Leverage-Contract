@@ -48,9 +48,9 @@ When a position is created by utilizing flashloan, the liquidity (flashloaned fu
 
 ## Build
 
-** First, you need to chnage the network on Metamask to localhost:8545 and chnage its network id into 1 like below.
+※Note: First, you need to chnage the network on Metamask to localhost:8545 and chnage its network id into 1 like below.
 
-<img width="350" alt="Screen Shot 2021-09-07 at 22 16 02" src="https://user-images.githubusercontent.com/88586592/132392043-ea3a50a6-ac90-4d01-83cc-13dc2b5f91db.png">
+<img width="250" alt="Screen Shot 2021-09-07 at 22 16 02" src="https://user-images.githubusercontent.com/88586592/132392043-ea3a50a6-ac90-4d01-83cc-13dc2b5f91db.png">
 
 
 And then, you need to import an account which has the enough ETH balance. If needed, you can just import one of the hardhat account, private key: 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
