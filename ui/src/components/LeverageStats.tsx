@@ -33,9 +33,15 @@ interface Props {
 }
 
 export function LeverageStats(props: Props) {
+  const isDeleverage = props.collateralToAdd < 0
   const nextDebt = props.debtToAdd + props.currentDebt
   const nextTotalDebtInColl = nextDebt /props.conversionRate
-  const nextTotalCollateral = props.currentCollateral+props.collateralToAdd+(props.debtToAdd/props.conversionRate);
+  let nextTotalCollateral;
+  if (isDeleverage) {
+    nextTotalCollateral = props.currentCollateral+props.collateralToAdd
+  } else {
+    nextTotalCollateral = props.currentCollateral+props.collateralToAdd+(props.debtToAdd/props.conversionRate)
+  }
   const currentDebtInColl = props.currentDebt/props.conversionRate
 
   return (
@@ -50,7 +56,7 @@ export function LeverageStats(props: Props) {
             </div>
             <span className={`row-content-value eth-balance flex-container`}>
               <span className="position-before">
-                {`${roundAmount(props.currentCollateral - (currentDebtInColl), props.collateralTokenID)} ${props.collateralTicker}`}
+                {`${roundAmount(props.currentCollateral - currentDebtInColl, props.collateralTokenID)} ${props.collateralTicker}`}
               </span>
               { props.hasPosition &&
                 <span className="position-arrow">
