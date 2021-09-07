@@ -27,8 +27,10 @@ interface Props {
 
 export default function LeveragePopUp(props: Props) {
   const initialCapital = roundAmount(props.currentCollateral - (props.currentDebt / props.conversionRate), props.collateralToken)
-  const currentLeverageRate = Number((props.currentCollateral / initialCapital).toFixed(2))
-
+  let currentLeverageRate = Number((props.currentCollateral / initialCapital).toFixed(2))
+  if (isNaN(currentLeverageRate)) {
+    currentLeverageRate = 1
+  }
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [leverageRate, setLeverageRate] = useState<number>(currentLeverageRate)
   const [initialCollateral, setInitialCollateralAmount] = useState<number>(roundAmount(props.currentCollateral, props.collateralToken));
