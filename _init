@@ -1,0 +1,6 @@
+#!/bin/bash
+cd ./ui
+npm i
+cd ..
+npm i
+npx hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/9-qXsdmIy-xaBitU4zjkm1f-906juvyY --fork-block-number 13112347
