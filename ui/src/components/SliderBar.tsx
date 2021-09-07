@@ -89,7 +89,6 @@ export function SliderBar(props: Props) {
   return (
     <div
       className="row"
-      style={{marginBottom: "12px"}}
       onMouseMove={onDragMove}
       onMouseUp={onDragEnd}
       >

@@ -190,6 +190,9 @@ export function DeleveragePopUpBody(props: Props) {
         setCollateralAmount={onSetCollateralInput}
         setDebtAmount={onSetDebtAmountInput}
         isDeleverage={true}
+        collateralTokenID={props.collateralToken}
+        debtTokenID={props.debtToken}
+        maxCollateral={props.balance}
       />
       <div className="leverage-label">Deleverage</div>
       <SliderBar
@@ -234,13 +237,15 @@ export function DeleveragePopUpBody(props: Props) {
         debtTicker={getTokenTickerFromTokenID(props.debtToken)}
         leverageRate={leverageRate}
         currentLeverageRate={currentLeverageRate}
+        collateralTokenID={props.collateralToken}
+        debtTokenID={props.debtToken}
       />
       <APYStats
         borrowAPY={borrowAPY}
         supplyAPY={supplyAPY}
         netAPY={netAPY}
       />
-      <div style={{ marginTop: "32px", display: "flex" }}>
+      <div style={{ marginTop: "28px", display: "flex" }}>
         <button
           type="button"
           onClick={executeDeleverage}

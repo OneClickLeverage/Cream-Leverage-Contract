@@ -72,7 +72,7 @@ border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .leverage-body {
-  padding: 60px;
+  padding: 32px 60px;
 }
 
 .row {
@@ -106,7 +106,7 @@ border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 
 .row-content-label {
   margin: auto;
-  flex-basis: 40%;
+  flex-basis: 33%;
 }
 
 .row-content-value {
@@ -659,8 +659,22 @@ cursor: pointer;
   justify-content: flex-end;
 }
 
+/* .row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+} */
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+}
+
 .position-before {
-  width: 45%;
+  /* width: 45%; */
   flex: 0 1 40%;
 }
 .position-arrow {
@@ -670,4 +684,14 @@ cursor: pointer;
 .position-after {
   flex: 0 1 40%;
   text-align: right;
+}
+
+.supply-max-button {
+  background: rgba(0, 0, 0, 0) none repeat scroll 0% 0%;
+  outline: currentcolor none medium;
+  border: 0px none;
+  color: white;
+  opacity: 0.5;
+  padding: 0px 18px 0px 0px;
+  cursor: pointer;
 }

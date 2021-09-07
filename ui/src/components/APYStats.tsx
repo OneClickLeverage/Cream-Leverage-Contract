@@ -8,8 +8,8 @@ interface Props {
 
 export function APYStats(props: Props) {
   return (
-    <div className="row" style={{ marginTop: "32px" }}>
-      <div className="row-header" style={{ marginBottom: "12px" }}>
+    <div className="row" style={{ marginTop: "28px" }}>
+      <div className="row-header" style={{ marginBottom: "0" }}>
         <div className="row-header-label">APY STATS</div>
       </div>
       <div className="row-content">
