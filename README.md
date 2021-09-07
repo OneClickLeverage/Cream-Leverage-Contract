@@ -50,10 +50,9 @@ When a position is created by utilizing flashloan, the liquidity (flashloaned fu
 
  ```
  git clone https://github.com/OneClickLeverage/Cream-Leverage-Contract.git
- npm i // 1. Install packages
- npx hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/<alchemy-key> --fork-block-number 13112347 // 2. run mainnet fork network
- npx hardhat run --network localhost insta_scripts/deploy/deployInsta.js // 3. deploy
- npm start
+ cd Cream-Leverage-Contract
+ ./_init // npm i && run node 
+ ./_start // deploy contracts && npm start
  
  ```
 
