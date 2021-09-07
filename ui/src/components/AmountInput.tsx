@@ -76,7 +76,7 @@ export function AmountInput(props: Props) {
     <div className="row">
       <div className="row-header">
         <div className="row-header-label">
-          {props.isDeleverage ? 'COLLATERAL AMOUNT TO REDUCE' : 'DEPOSIT AMOUNT'}
+          {props.isDeleverage ? 'WITHDRAW (COLLATERAL)' : 'SUPPLY (COLLATERAL)'}
         </div>
         <div className="balance-amount text-align-right">
             Balance:&nbsp;
@@ -97,7 +97,7 @@ export function AmountInput(props: Props) {
       />
       <div className="row-header">
         <div className="row-header-label">
-        {props.isDeleverage ? 'DEBT AMOUNT TO PAYBACK' : 'DEBT AMOUNT'}
+        {props.isDeleverage ? 'PAYBACK (DEBT)' : 'BORROW (DEBT)'}
         </div>
       </div>
       <NumberInput
