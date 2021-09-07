@@ -4,10 +4,7 @@
 
 OneClickLeverage app allows users to easily create flexible leverage position and deleverage them on Cream Finance. 
 
-Here is the demo with explanation.
-
-
-
+https://user-images.githubusercontent.com/4685781/132394603-8853a2ce-3692-4907-b09a-b02e0fb780fc.mov
 
 ## UI & UX
 
