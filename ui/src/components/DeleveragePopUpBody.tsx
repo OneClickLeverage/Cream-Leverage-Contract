@@ -63,8 +63,8 @@ export function DeleveragePopUpBody(props: Props) {
     setIsExecuting(false)
   }
 
-  function onPriceImpactInput(e: any) {
-    const input = parseFloat(e.target.value)
+  function onPriceImpactInput(e: React.FormEvent<HTMLInputElement>) {
+    const input = Number(e.currentTarget.value)
     if (isNaN(input)) {
       return
     }
@@ -215,7 +215,7 @@ export function DeleveragePopUpBody(props: Props) {
       <div className="priceimpact-input-outer">
         <input
           className="priceimpact-input"
-          type="number" value={priceImpact}
+          type="number" value={priceImpact + ''}
           onInput={onPriceImpactInput}
         >
         </input>
