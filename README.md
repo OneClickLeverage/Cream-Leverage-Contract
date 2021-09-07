@@ -6,7 +6,9 @@ OneClickLeverage app allows users to easily create flexible leverage position an
 
 Here is the working demo when creating 3x leverage position with ETH(collateral) and DAI(debt).
 
-// gif video
+
+https://user-images.githubusercontent.com/88586592/132319567-10822f38-07ca-485f-a801-f8b2cd4d9e8f.mp4
+
 
 And this is how deleverage looks like.
 

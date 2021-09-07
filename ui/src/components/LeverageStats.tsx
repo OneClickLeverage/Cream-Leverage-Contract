@@ -31,7 +31,6 @@ interface Props {
 
 export function LeverageStats(props: Props) {
   const nextDebt = props.debtToAdd + props.currentDebt
-  console.log()
   const nextTotalDebtInColl = nextDebt /props.conversionRate
   const nextTotalCollateral = props.currentCollateral+props.collateralToAdd+(props.debtToAdd/props.conversionRate);
   const currentDebtInColl = props.currentDebt/props.conversionRate
