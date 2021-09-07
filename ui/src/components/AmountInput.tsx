@@ -21,7 +21,7 @@ function NumberInput(props: NumberInputProps) {
               className={`price-input ${isError ? 'price-input--error' : ''}`}
               type="number"
               onInput={props.onInput}
-              value={props.value === 0 ? '' : props.value}
+              value={props.value}
             >
             </input>
             <span>{props.ticker}</span>
@@ -52,9 +52,6 @@ interface Props {
   collErrorMessage: string
   debtErrorMessage: string
   isDeleverage: boolean
-  currentCollateral: number
-  currentDebt: number
-  hasPosition: boolean
   setCollateralAmount: (amount: number) => void
   setDebtAmount: (amount: number) => void
 }
@@ -72,36 +69,16 @@ export function AmountInput(props: Props) {
 
   return (
     <div className="row">
-      { props.hasPosition &&
-        <div className="row-header">
-          <div className="balance-amount">
-            Balance:&nbsp;
-            <span className={`eth-balance ${props.isDeleverage ? "color-pink" : "color-emerald"}`}>
-              {`${props.balance.toFixed(4)} ${props.collateralTicker}`}
-            </span>
-          </div>
-        </div>
-      }
       <div className="row-header">
         <div className="row-header-label">
           {props.isDeleverage ? 'COLLATERAL AMOUNT TO REDUCE' : 'DEPOSIT AMOUNT'}
         </div>
-        { props.hasPosition &&
-          <div className="balance-amount">
-            Current Collateral Position:&nbsp;
-            <span className={`eth-balance ${props.isDeleverage ? "color-pink" : "color-emerald"}`}>
-              {`${props.currentCollateral.toFixed(4)} ${props.collateralTicker}`}
-            </span>
-          </div>
-        }
-        { !props.hasPosition &&
-          <div className="balance-amount">
+        <div className="balance-amount text-align-right">
             Balance:&nbsp;
             <span className={`eth-balance ${props.isDeleverage ? "color-pink" : "color-emerald"}`}>
               {`${props.balance.toFixed(4)} ${props.collateralTicker}`}
             </span>
           </div>
-        }
       </div>
       <NumberInput
         value={props.initialCollateral}
@@ -115,16 +92,6 @@ export function AmountInput(props: Props) {
         <div className="row-header-label">
         {props.isDeleverage ? 'DEBT AMOUNT TO PAYBACK' : 'DEBT AMOUNT'}
         </div>
-        { props.hasPosition &&
-          (
-            <div className="balance-amount">
-              Current Debt Position:&nbsp;
-              <span className={`eth-balance ${props.isDeleverage ? "color-pink" : "color-emerald"}`}>
-                {`${props.currentDebt.toFixed(4)} ${props.debtTicker} (~${((props.currentDebt/props.conversionRate) || 0).toFixed(4)} ${props.collateralTicker})`}
-              </span>
-            </div>
-          )
-        }
       </div>
       <NumberInput
         value={props.debtAmount}

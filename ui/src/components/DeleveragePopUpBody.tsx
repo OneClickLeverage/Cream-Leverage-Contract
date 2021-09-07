@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { deleverageFromBrowser, getDebtRatioFromBrowser, getLiquidationPriceFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
+import { AdjustCreamAction, adjustCreamFromBrowser, deleverageFromBrowser, getDebtRatioFromBrowser, getLiquidationPriceFromBrowser } from '../../../insta_scripts/experiments/fromBrowser';
 import { getAssetAPYs, getNetAPY } from '../../../insta_scripts/experiments/getInfo';
 import { getTokenTickerFromTokenID, TokenID } from '../types/TokenID';
 import { Color, CSS_RGB_PINK } from '../utils/color';
 import { roundAmount } from '../utils/number';
 import { AmountInput } from './AmountInput';
-import { SliderRow } from './SilderBar';
+import { APYStats } from './APYStats';
+import { LeverageStats } from './LeverageStats';
+import { SliderBar } from './SliderBar';
 
 declare let window: any;
 interface Props {
@@ -18,6 +20,7 @@ interface Props {
   currentCollateral: number,
   collateralRatio: number,
   hasPosition: boolean,
+  updateBalances: () => void,
 }
 
 const MAX_LEVERAGE_RATE = 5
@@ -40,17 +43,31 @@ export function DeleveragePopUpBody(props: Props) {
   const [netAPY, setNetAPY] = useState<string>("")
   const [liquidationPrice, setLiquidationPrice] = useState<number>(0)
   const [debtRatio, setDebtRatio] = useState<number>(0)
+  const [isExecuting, setIsExecuting] = useState<boolean>(false)
+
+  const [currentDebtRatio, setCurrentDebtRatio] = useState<number>(0)
+  const [currentLiquidationPrice, setCurrentLiquidationPrice] = useState<number>(0)
 
   const isError = debtErrorMsg !== '' || collErrorMsg !== ''
-  const hasInput = collateralToReduce > 0 && debtToReduce > 0
-  const shouldNotExecute = isError || !hasInput;
+  const hasInput = collateralToReduce > 0 || debtToReduce > 0
+  const shouldNotExecute = isError || !hasInput || isExecuting;
 
   async function executeDeleverage() {
-    await deleverageFromBrowser(window.ethereum, props.myAddress, collateralToReduce, debtToReduce, priceImpact, props.collateralToken, props.debtToken)
+    setIsExecuting(true)
+    if (collateralToReduce !== 0 && debtToReduce === 0) {
+      await adjustCreamFromBrowser(window.ethereum, props.myAddress, props.collateralToken, props.debtToken, collateralToReduce, AdjustCreamAction.Withdraw)
+    } else {
+      await deleverageFromBrowser(window.ethereum, props.myAddress, collateralToReduce, debtToReduce, priceImpact, props.collateralToken, props.debtToken)
+    }
+    await props.updateBalances()
+    setIsExecuting(false)
   }
 
   function onPriceImpactInput(e:any) {
-    const input = e.target.value as number
+    const input = parseFloat(e.target.value)
+    if (isNaN(input)) {
+      return
+    }
     setPriceImpact(input)
   }
 
@@ -80,7 +97,7 @@ export function DeleveragePopUpBody(props: Props) {
 
     if (amount > props.currentDebt) {
       setDebtErrorMsg(`Cannot reduce more than the current debt amount, ${props.currentDebt} ${getTokenTickerFromTokenID(props.debtToken)}`)
-    } else if (amount > (collateralToReduce * props.conversionRate)) {
+    } else if (amount > (collateralToReduce * props.conversionRate) && collateralToReduce !== 0) {
       setDebtErrorMsg(`Cannot reduce more than the collateral amount to reduce. Either increase the collateral to reduce or decrease the debt to payback.`)
     } else if (amount < 0) {
       setDebtErrorMsg('Cannot reduce less than 0')
@@ -94,11 +111,12 @@ export function DeleveragePopUpBody(props: Props) {
   }
 
   function onLeverageRateChange(rate: number) {
-    if (rate > currentLeverageRate) {
-      return
-    }
     if (debtErrorMsg !== '') {
       setDebtErrorMsg('')
+    }
+    if (rate > currentLeverageRate) {
+      setDebtErrorMsg('Cannot add more leverage')
+      return
     }
     setLeverageRate(rate)
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)
@@ -124,6 +142,9 @@ export function DeleveragePopUpBody(props: Props) {
       -collateralToReduce,
       -debtToReduce, 2)
     .then((ratio: number) => {
+      if (isInitialRender) {
+        setCurrentDebtRatio(ratio)
+      }
       setDebtRatio(ratio)
     })
 
@@ -135,6 +156,9 @@ export function DeleveragePopUpBody(props: Props) {
       -collateralToReduce,
       -debtToReduce, 2)
     .then((price: number) => {
+      if (isInitialRender) {
+        setCurrentLiquidationPrice(price)
+      }
       setLiquidationPrice(price)
     })
   }
@@ -166,12 +190,9 @@ export function DeleveragePopUpBody(props: Props) {
         setCollateralAmount={onSetCollateralInput}
         setDebtAmount={onSetDebtAmountInput}
         isDeleverage={true}
-        currentCollateral={props.currentCollateral}
-        currentDebt={props.currentDebt}
-        hasPosition={props.hasPosition}
       />
       <div className="leverage-label">Deleverage</div>
-      <SliderRow
+      <SliderBar
         numberOfMarkers={5}
         maxLabelX={MAX_LEVERAGE_RATE}
         isPercentage={false}
@@ -191,45 +212,35 @@ export function DeleveragePopUpBody(props: Props) {
       <div className="priceimpact-input-outer">
         <input
           className="priceimpact-input"
-          type="number" value="0.5"
+          type="number" value={priceImpact}
           onInput={onPriceImpactInput}
         >
         </input>
         <span > % ( default: 0.5% )</span>
       </div>
-
-      <div className="row" style={{ marginTop: "42px" }}>
-        <div className="row-header" style={{ marginBottom: "12px" }}>
-          <div className="row-header-label">LEVERAGE STATS (EXPECTED)</div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Debt Ratio</div>
-          <div className="row-content-value">{`${(debtRatio * 100).toFixed(2)}% / ${(props.collateralRatio * 100).toFixed(0)}%`}</div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Liquidation Price</div>
-          <div className="row-content-value">{`$${(liquidationPrice).toFixed(2)}`}</div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Borrow APY</div>
-          <div className="row-content-value">
-            <div>{`${borrowAPY}%`}</div>
-          </div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Supply APY</div>
-          <div className="row-content-value">
-              <div>{`${supplyAPY}%`}</div>
-          </div>
-        </div>
-        <div className="row-content">
-          <div className="row-content-label">Net APY (supply - borrow)</div>
-          <div className="row-content-value">
-            <div>{`${netAPY}%`}</div>
-          </div>
-        </div>
-      </div>
-      <div style={{ marginTop: "100px", display: "flex" }}>
+      <LeverageStats
+        hasPosition={props.hasPosition}
+        currentDebtRatio={currentDebtRatio}
+        debtRatio={debtRatio}
+        collateralRatio={props.collateralRatio}
+        currentLiquidationPrice={currentLiquidationPrice}
+        conversionRate={props.conversionRate}
+        liquidationPrice={liquidationPrice}
+        currentDebt={props.currentDebt}
+        debtToAdd={-debtToReduce}
+        currentCollateral={props.currentCollateral}
+        collateralToAdd={-collateralToReduce}
+        collateralTicker={getTokenTickerFromTokenID(props.collateralToken)}
+        debtTicker={getTokenTickerFromTokenID(props.debtToken)}
+        leverageRate={leverageRate}
+        currentLeverageRate={currentLeverageRate}
+      />
+      <APYStats
+        borrowAPY={borrowAPY}
+        supplyAPY={supplyAPY}
+        netAPY={netAPY}
+      />
+      <div style={{ marginTop: "32px", display: "flex" }}>
         <button
           type="button"
           onClick={executeDeleverage}

@@ -17,6 +17,7 @@ async function _adjustCream(dsa, user_address, coll, debt, isETH, amount, action
     let _arg2;
     let _amount;
     let _decimal;
+    let _token;
 
     if (action == 0) {
         _method = "depositRaw";
@@ -82,8 +83,7 @@ async function _adjustCream(dsa, user_address, coll, debt, isETH, amount, action
     console.log("Done!");
 }
 
-async function deposit(spells, isETH, _amount, _decimal, decimal, token) {
-
+async function deposit(spells, isETH, _amount, decimal, token) {
     if (isETH == 0) {
         await spells.add({
             connector: "BASIC-A",

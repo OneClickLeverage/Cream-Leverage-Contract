@@ -10,7 +10,7 @@ interface Props {
   onDragEnd: (rate: number) => void
 }
 
-export function SliderRow(props: Props) {
+export function SliderBar(props: Props) {
   const railRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null)
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
@@ -95,7 +95,7 @@ export function SliderRow(props: Props) {
       >
       <div
         className="rc-slider-outer"
-        style={{marginTop: "42px"}}
+        // style={{marginTop: "42px"}}
         ref={outerRef}
       >
       <div
@@ -120,7 +120,7 @@ export function SliderRow(props: Props) {
         >
           {
             [...Array(props.numberOfMarkers).keys()].map((v,  i: number) => {
-              const isActive = false // guagePercent >= getLabelUnit(i, true)
+              const isActive = guagePercent >= (i)/(props.numberOfMarkers-1) *100
               return (
                 <span
                   key={`${unit*i}`}
@@ -129,6 +129,7 @@ export function SliderRow(props: Props) {
                     left: `${unit*i}%`,
                     color: (props.color === Color.Emerald) ? CSS_RGB_EMERALD_BRIGHT : CSS_RGB_PINK,
                     borderColor: (props.color === Color.Emerald) ? CSS_RGB_EMERALD_BRIGHT : CSS_RGB_PINK,
+                    ...(isActive ? {backgroundColor: (props.color === Color.Emerald) ? CSS_RGB_EMERALD_BRIGHT : CSS_RGB_PINK} : {}),
                   }}
                   onClick={() => onMarkerClick(i)}
                 ></span>
@@ -148,7 +149,7 @@ export function SliderRow(props: Props) {
         <div className="rc-slider-mark">
           {
             [...Array(props.numberOfMarkers).keys()].map((v,  i: number) => {
-              const isActive = false //guagePercent >= getLabelUnit(i, true)
+              const isActive = guagePercent >= (i)/(props.numberOfMarkers-1) *100
               return (
                 <span
                   key={`${unit*i}`}
