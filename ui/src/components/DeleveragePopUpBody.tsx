@@ -121,8 +121,12 @@ export function DeleveragePopUpBody(props: Props) {
       setDebtErrorMsg('Cannot add more leverage')
       return
     }
-    setLeverageRate(rate)
-    const debtAmount = calculateDebtFromRate(rate, initialCollateral)
+    let newRate = rate
+    if (isNaN(rate)) {
+      newRate = 1
+    }
+    setLeverageRate(newRate)
+    const debtAmount = calculateDebtFromRate(newRate, initialCollateral)
     const totalCollateralInDebtUnit = props.currentCollateral / props.conversionRate
     const debtAmountToReduce = props.currentDebt - debtAmount - totalCollateralInDebtUnit
     setDebtToReduce(roundAmount(debtAmountToReduce, props.debtToken))
@@ -208,7 +212,7 @@ export function DeleveragePopUpBody(props: Props) {
           if (rate > currentLeverageRate) {
             return
           }
-          setLeverageRate(rate)
+          setLeverageRate(isNaN(rate) ? 1 : rate)
           updateDebtStats()
         }}
         color={Color.Pink}
