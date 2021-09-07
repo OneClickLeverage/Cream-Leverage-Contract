@@ -1,0 +1,4 @@
+#!/bin/bash
+npx hardhat run --network localhost insta_scripts/deploy/deployInsta.js
+cd ./ui
+npm start
