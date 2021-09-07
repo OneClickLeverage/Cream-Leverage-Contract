@@ -4,13 +4,9 @@
 
 OneClickLeverage app allows users to easily create flexible leverage position and deleverage them on Cream Finance. 
 
-Here is the working demo when creating 3x leverage position with ETH(collateral) and DAI(debt).
+Here is the demo with explanation.
 
-// gif video
 
-And this is how deleverage looks like.
-
-// gif video
 
 
 ## UI & UX
@@ -43,6 +39,12 @@ Especially in that model, cr/cytoken a user is supposed to receive is sent to co
 When a position is created by utilizing flashloan, the liquidity (flashloaned funds) is taken by CreamV1 instead of the same cyToken pool to avoid reversions caused by reentrancy. When testing, it threw the error `re-enter`.
 
 ※Note: We aren't 100% sure that it stems from the reentrancy guard, but it's likely. The transaction didn't succeed when the collateral and debt's liquidity source(cr/cy token) are the same.
+
+### Workflow 
+
+<img width="648" alt="Screen Shot 2021-09-07 at 20 05 28" src="https://user-images.githubusercontent.com/88586592/132380896-0113c0e1-2382-4b70-8c96-d802e9517bb6.png">
+
+<img width="650" alt="Screen Shot 2021-09-07 at 20 06 26" src="https://user-images.githubusercontent.com/88586592/132380905-07d9fedc-e3ac-498b-a2e8-61dfd10fb8e2.png">
 
 ## Build
 

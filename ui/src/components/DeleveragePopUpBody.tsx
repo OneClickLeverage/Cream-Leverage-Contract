@@ -27,7 +27,10 @@ const MAX_LEVERAGE_RATE = 5
 
 export function DeleveragePopUpBody(props: Props) {
   const initialCollateral = props.currentCollateral - (props.currentDebt / props.conversionRate)
-  const currentLeverageRate = Number((props.currentCollateral / initialCollateral).toFixed(2))
+  let currentLeverageRate = Number((props.currentCollateral / initialCollateral).toFixed(2))
+  if (isNaN(currentLeverageRate)) {
+    currentLeverageRate = 1
+  }
 
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [collateralToReduce, setCollateraToReduce] = useState<number>(0)
@@ -63,8 +66,8 @@ export function DeleveragePopUpBody(props: Props) {
     setIsExecuting(false)
   }
 
-  function onPriceImpactInput(e: any) {
-    const input = parseFloat(e.target.value)
+  function onPriceImpactInput(e: React.FormEvent<HTMLInputElement>) {
+    const input = Number(e.currentTarget.value)
     if (isNaN(input)) {
       return
     }
@@ -118,8 +121,12 @@ export function DeleveragePopUpBody(props: Props) {
       setDebtErrorMsg('Cannot add more leverage')
       return
     }
-    setLeverageRate(rate)
-    const debtAmount = calculateDebtFromRate(rate, initialCollateral)
+    let newRate = rate
+    if (isNaN(rate)) {
+      newRate = 1
+    }
+    setLeverageRate(newRate)
+    const debtAmount = calculateDebtFromRate(newRate, initialCollateral)
     const totalCollateralInDebtUnit = props.currentCollateral / props.conversionRate
     const debtAmountToReduce = props.currentDebt - debtAmount - totalCollateralInDebtUnit
     setDebtToReduce(roundAmount(debtAmountToReduce, props.debtToken))
@@ -190,6 +197,9 @@ export function DeleveragePopUpBody(props: Props) {
         setCollateralAmount={onSetCollateralInput}
         setDebtAmount={onSetDebtAmountInput}
         isDeleverage={true}
+        collateralTokenID={props.collateralToken}
+        debtTokenID={props.debtToken}
+        maxCollateral={props.balance}
       />
       <div className="leverage-label">Deleverage</div>
       <SliderBar
@@ -202,7 +212,7 @@ export function DeleveragePopUpBody(props: Props) {
           if (rate > currentLeverageRate) {
             return
           }
-          setLeverageRate(rate)
+          setLeverageRate(isNaN(rate) ? 1 : rate)
           updateDebtStats()
         }}
         color={Color.Pink}
@@ -212,7 +222,7 @@ export function DeleveragePopUpBody(props: Props) {
       <div className="priceimpact-input-outer">
         <input
           className="priceimpact-input"
-          type="number" value={priceImpact}
+          type="number" value={priceImpact + ''}
           onInput={onPriceImpactInput}
         >
         </input>
@@ -234,13 +244,15 @@ export function DeleveragePopUpBody(props: Props) {
         debtTicker={getTokenTickerFromTokenID(props.debtToken)}
         leverageRate={leverageRate}
         currentLeverageRate={currentLeverageRate}
+        collateralTokenID={props.collateralToken}
+        debtTokenID={props.debtToken}
       />
       <APYStats
         borrowAPY={borrowAPY}
         supplyAPY={supplyAPY}
         netAPY={netAPY}
       />
-      <div style={{ marginTop: "32px", display: "flex" }}>
+      <div style={{ marginTop: "28px", display: "flex" }}>
         <button
           type="button"
           onClick={executeDeleverage}

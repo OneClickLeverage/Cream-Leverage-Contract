@@ -26,13 +26,15 @@ interface Props {
 }
 
 export default function LeveragePopUp(props: Props) {
-  const initialCapital = props.currentCollateral - (props.currentDebt / props.conversionRate)
-  const currentLeverageRate = Number((props.currentCollateral / initialCapital).toFixed(2))
-
+  const initialCapital = roundAmount(props.currentCollateral - (props.currentDebt / props.conversionRate), props.collateralToken)
+  let currentLeverageRate = Number((props.currentCollateral / initialCapital).toFixed(2))
+  if (isNaN(currentLeverageRate)) {
+    currentLeverageRate = 1
+  }
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [leverageRate, setLeverageRate] = useState<number>(currentLeverageRate)
-  const [initialCollateral, setInitialCollateralAmount] = useState<number>(props.currentCollateral);
-  const [debtAmount, setDebtAmount] = useState<number>(props.currentDebt)
+  const [initialCollateral, setInitialCollateralAmount] = useState<number>(roundAmount(props.currentCollateral, props.collateralToken));
+  const [debtAmount, setDebtAmount] = useState<number>(roundAmount(props.currentDebt, props.debtToken))
   const [priceImpact, setPriceImpact] = useState<number>(0.5);
   const [borrowAPY, setBorrowAPY] = useState<string>("")
   const [supplyAPY, setSupplyAPY] = useState<string>("")
@@ -61,7 +63,7 @@ export default function LeveragePopUp(props: Props) {
   }
 
   function onPriceImpactInput(e:any) {
-    const input = parseFloat(e.target.value)
+    const input = Number(e.currentTarget.value)
     if (isNaN(input)) {
       return
     }
@@ -109,7 +111,7 @@ export default function LeveragePopUp(props: Props) {
       setCollErrorMsg(`The current leverage ${rate.toFixed(2)}x is over the maximum ${MAX_LEVERAGE_RATE}x`)
       rate = MAX_LEVERAGE_RATE
     }
-    setInitialCollateralAmount(amount)
+    setInitialCollateralAmount(roundAmount(amount, props.collateralToken))
     setLeverageRate(rate)
     updateDebtStats()
   }
@@ -183,6 +185,9 @@ export default function LeveragePopUp(props: Props) {
         setCollateralAmount={onSetCollateral}
         setDebtAmount={onSetDebtAmount}
         isDeleverage={false}
+        collateralTokenID={props.collateralToken}
+        debtTokenID={props.debtToken}
+        maxCollateral={props.balance}
       />
       <div className="leverage-label">Leverage</div>
       <SliderBar
@@ -202,7 +207,7 @@ export default function LeveragePopUp(props: Props) {
       <div className="priceimpact-input-outer">
         <input
           className="priceimpact-input"
-          type="number" value={priceImpact}
+          type="number" value={priceImpact + ''}
           onInput={onPriceImpactInput}
         >
         </input>
@@ -224,13 +229,15 @@ export default function LeveragePopUp(props: Props) {
         debtTicker={getTokenTickerFromTokenID(props.debtToken)}
         leverageRate={leverageRate}
         currentLeverageRate={currentLeverageRate}
+        collateralTokenID={props.collateralToken}
+        debtTokenID={props.debtToken}
       />
       <APYStats
         borrowAPY={borrowAPY}
         supplyAPY={supplyAPY}
         netAPY={netAPY}
       />
-      <div style={{ marginTop: "32px", display: "flex" }}>
+      <div style={{ marginTop: "28px", display: "flex" }}>
         <button
           type="button"
           onClick={executeSupply}
