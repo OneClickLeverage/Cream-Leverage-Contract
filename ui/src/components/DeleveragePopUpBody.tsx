@@ -27,7 +27,10 @@ const MAX_LEVERAGE_RATE = 5
 
 export function DeleveragePopUpBody(props: Props) {
   const initialCollateral = props.currentCollateral - (props.currentDebt / props.conversionRate)
-  const currentLeverageRate = Number((props.currentCollateral / initialCollateral).toFixed(2))
+  let currentLeverageRate = Number((props.currentCollateral / initialCollateral).toFixed(2))
+  if (isNaN(currentLeverageRate)) {
+    currentLeverageRate = 1
+  }
 
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true)
   const [collateralToReduce, setCollateraToReduce] = useState<number>(0)
