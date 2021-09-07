@@ -256,8 +256,8 @@ async function isFlashloanDelev(dsa, user_address, coll, debt, withdraw_amt) {
 }
 
 async function getPayBackAmt(debt_amount) {
-  const payback_amt = parseFloat((debt_amount * 1.0003)).toFixed(0);
-  return payback_amt; // debt[4]?
+  const payback_amt = parseFloat((debt_amount * 1.0004)).toFixed(0);
+  return payback_amt;
 }
 
 async function getBorrowAmtColl(coll, debt, debt_amount, price_impact) {
