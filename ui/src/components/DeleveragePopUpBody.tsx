@@ -63,7 +63,7 @@ export function DeleveragePopUpBody(props: Props) {
     setIsExecuting(false)
   }
 
-  function onPriceImpactInput(e:any) {
+  function onPriceImpactInput(e: any) {
     const input = parseFloat(e.target.value)
     if (isNaN(input)) {
       return
@@ -72,14 +72,14 @@ export function DeleveragePopUpBody(props: Props) {
   }
 
   function onSetCollateralInput(amount: number) {
-    const expectedDebtRatio = amount / ((props.currentCollateral-collateralToReduce) * props.conversionRate)
+    const expectedDebtRatio = amount / ((props.currentCollateral - collateralToReduce) * props.conversionRate)
 
     if (amount > props.currentCollateral) {
       setCollErrorMsg(`Cannot reduce more than the current collateral amount, ${props.currentCollateral} ${getTokenTickerFromTokenID(props.collateralToken)}`)
     } else if (amount < 0) {
       setCollErrorMsg('Cannot reduce less than 0')
     } else if (expectedDebtRatio > props.collateralRatio) {
-      setDebtErrorMsg(`The expected debt ratio ${(expectedDebtRatio*100).toFixed(0)} is greater than the collateral ratio ${(props.collateralRatio * 100).toFixed(0)}`)
+      setDebtErrorMsg(`The expected debt ratio ${(expectedDebtRatio * 100).toFixed(0)} is greater than the collateral ratio ${(props.collateralRatio * 100).toFixed(0)}`)
     } else if (collErrorMsg !== '') {
       setCollErrorMsg('')
     }
@@ -93,7 +93,7 @@ export function DeleveragePopUpBody(props: Props) {
   }
 
   function onSetDebtAmountInput(amount: number) {
-    const expectedDebtRatio = (props.currentDebt-amount) / ((props.currentCollateral-collateralToReduce) * props.conversionRate)
+    const expectedDebtRatio = (props.currentDebt - amount) / ((props.currentCollateral - collateralToReduce) * props.conversionRate)
 
     if (amount > props.currentDebt) {
       setDebtErrorMsg(`Cannot reduce more than the current debt amount, ${props.currentDebt} ${getTokenTickerFromTokenID(props.debtToken)}`)
@@ -102,7 +102,7 @@ export function DeleveragePopUpBody(props: Props) {
     } else if (amount < 0) {
       setDebtErrorMsg('Cannot reduce less than 0')
     } else if (expectedDebtRatio > props.collateralRatio) {
-      setDebtErrorMsg(`The expected debt ratio ${(expectedDebtRatio*100).toFixed(0)}% is greater than the collateral ratio ${(props.collateralRatio * 100).toFixed(0)}%`)
+      setDebtErrorMsg(`The expected debt ratio ${(expectedDebtRatio * 100).toFixed(0)}% is greater than the collateral ratio ${(props.collateralRatio * 100).toFixed(0)}%`)
     } else if (debtErrorMsg !== '') {
       setDebtErrorMsg('')
     }
@@ -120,11 +120,11 @@ export function DeleveragePopUpBody(props: Props) {
     }
     setLeverageRate(rate)
     const debtAmount = calculateDebtFromRate(rate, initialCollateral)
-    const totalCollateralInDebtUnit = props.currentCollateral/props.conversionRate
+    const totalCollateralInDebtUnit = props.currentCollateral / props.conversionRate
     const debtAmountToReduce = props.currentDebt - debtAmount - totalCollateralInDebtUnit
     setDebtToReduce(roundAmount(debtAmountToReduce, props.debtToken))
     const boundRoom = 1.05
-    setCollateraToReduce(roundAmount(debtAmountToReduce/props.conversionRate*boundRoom, props.collateralToken))
+    setCollateraToReduce(roundAmount(debtAmountToReduce / props.conversionRate * boundRoom, props.collateralToken))
   }
 
   function calculateDebtFromRate(rate: number, collateral: number): number {
@@ -140,13 +140,13 @@ export function DeleveragePopUpBody(props: Props) {
       props.collateralToken,
       props.debtToken,
       -collateralToReduce,
-      -debtToReduce, 2)
-    .then((ratio: number) => {
-      if (isInitialRender) {
-        setCurrentDebtRatio(ratio)
-      }
-      setDebtRatio(ratio)
-    })
+      -debtToReduce, 3)
+      .then((ratio: number) => {
+        if (isInitialRender) {
+          setCurrentDebtRatio(ratio)
+        }
+        setDebtRatio(ratio)
+      })
 
     getLiquidationPriceFromBrowser(
       window.ethereum,
@@ -154,20 +154,20 @@ export function DeleveragePopUpBody(props: Props) {
       props.collateralToken,
       props.debtToken,
       -collateralToReduce,
-      -debtToReduce, 2)
-    .then((price: number) => {
-      if (isInitialRender) {
-        setCurrentLiquidationPrice(price)
-      }
-      setLiquidationPrice(price)
-    })
+      -debtToReduce, 3)
+      .then((price: number) => {
+        if (isInitialRender) {
+          setCurrentLiquidationPrice(price)
+        }
+        setLiquidationPrice(price)
+      })
   }
 
   useEffect(() => {
     if (!isInitialRender) return
 
-    getAssetAPYs(props.collateralToken).then(([, sAPY]:number[]) => setSupplyAPY(sAPY.toFixed(2)))
-    getAssetAPYs(props.debtToken).then(([bAPY]:number[]) => setBorrowAPY(bAPY.toFixed(2)))
+    getAssetAPYs(props.collateralToken).then(([, sAPY]: number[]) => setSupplyAPY(sAPY.toFixed(2)))
+    getAssetAPYs(props.debtToken).then(([bAPY]: number[]) => setBorrowAPY(bAPY.toFixed(2)))
     getNetAPY(props.collateralToken, props.debtToken).then((nAPY: number) => setNetAPY(nAPY.toFixed(2)))
     updateDebtStats()
 
@@ -258,6 +258,6 @@ export function DeleveragePopUpBody(props: Props) {
           Deleverage
         </button>
       </div>
-    </div> 
+    </div>
   )
 }
