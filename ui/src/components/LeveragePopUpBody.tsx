@@ -185,6 +185,7 @@ export default function LeveragePopUp(props: Props) {
         isDeleverage={false}
         collateralTokenID={props.collateralToken}
         debtTokenID={props.debtToken}
+        maxCollateral={props.balance}
       />
       <div className="leverage-label">Leverage</div>
       <SliderBar

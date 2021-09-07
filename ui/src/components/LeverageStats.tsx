@@ -117,7 +117,7 @@ export function LeverageStats(props: Props) {
         </div>
       <div className="row" style={{ marginTop: "32px" }}>
         <div className="row-header" style={{ marginBottom: "12px" }}>
-          <div className="row-header-label">LEVERAGE</div>
+          <div className="row-header-label">LEVERAGE STATS</div>
         </div>
         <div className="row-content">
           <div className="row-content-label">

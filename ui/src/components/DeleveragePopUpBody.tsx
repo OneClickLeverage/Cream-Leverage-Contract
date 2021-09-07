@@ -192,6 +192,7 @@ export function DeleveragePopUpBody(props: Props) {
         isDeleverage={true}
         collateralTokenID={props.collateralToken}
         debtTokenID={props.debtToken}
+        maxCollateral={props.balance}
       />
       <div className="leverage-label">Deleverage</div>
       <SliderBar

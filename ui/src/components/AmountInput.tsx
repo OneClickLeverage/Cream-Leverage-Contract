@@ -2,7 +2,7 @@ import React from 'react';
 import { TokenID } from '../types/TokenID';
 import { roundAmount } from '../utils/number';
 interface NumberInputProps {
-  onInput: (e: any) => void
+  onInput: (amount: number) => void
   value: number
   otherPairValue: number
   ticker: string
@@ -10,10 +10,17 @@ interface NumberInputProps {
   errorMessage: string
   tokenID: TokenID
   otherPairTokenID: TokenID
+  isMaxShown: boolean
+  maxValue: number
 }
 
 function NumberInput(props: NumberInputProps) {
   const isError = props.errorMessage !== ''
+
+  function onInput(e: React.FormEvent<HTMLInputElement>) {
+    const amount = Number(e.currentTarget.value)
+    props.onInput(amount)
+  }
   
   return (
     <div className={`price-input-outer ${isError ? 'price-input-outer--error' : ''}`}>
@@ -23,14 +30,24 @@ function NumberInput(props: NumberInputProps) {
             <input
               className={`price-input ${isError ? 'price-input--error' : ''}`}
               type="number"
-              onInput={props.onInput}
+              onInput={onInput}
               value={props.value}
             >
             </input>
             <span>{props.ticker}</span>
           </div>
-          <div>{`${props.otherPairTicker === '$' ? '$' : ''}${roundAmount(props.otherPairValue, props.otherPairTokenID)}${props.otherPairTicker === '$' ? '' : ' ' + props.otherPairTicker}`}</div>
+          <div>
+            {`${props.otherPairTicker === '$' ? '$' : ''}${roundAmount(props.otherPairValue, props.otherPairTokenID)}${props.otherPairTicker === '$' ? '' : ' ' + props.otherPairTicker}`}
+          </div>
         </div>
+        { props.isMaxShown &&
+          <button
+            className="supply-max-button"
+            onClick={() => props.onInput(props.maxValue)}
+          >
+            MAX
+          </button>
+        }
       </div>
       { isError &&
         <div
@@ -57,19 +74,18 @@ interface Props {
   isDeleverage: boolean
   collateralTokenID: TokenID
   debtTokenID: TokenID
+  maxCollateral: number
   setCollateralAmount: (amount: number) => void
   setDebtAmount: (amount: number) => void
 }
 
 export function AmountInput(props: Props) {
-  function onDepositAmountInput(e:any) {
-    const input = e.target.value as number
-    props.setCollateralAmount(Number(input))
+  function onDepositAmountInput(amount: number) {
+    props.setCollateralAmount(amount)
   }
 
-  function onDebtAmountInput(e:any) {
-    const input = e.target.value as number
-    props.setDebtAmount(Number(input))
+  function onDebtAmountInput(amount: number) {
+    props.setDebtAmount(amount)
   }
 
   return (
@@ -94,6 +110,8 @@ export function AmountInput(props: Props) {
         errorMessage={props.collErrorMessage}
         tokenID={props.collateralTokenID}
         otherPairTokenID={props.debtTokenID}
+        isMaxShown={true}
+        maxValue={props.maxCollateral}
       />
       <div className="row-header">
         <div className="row-header-label">
@@ -109,6 +127,8 @@ export function AmountInput(props: Props) {
         errorMessage={props.debtErrorMessage}
         tokenID={props.debtTokenID}
         otherPairTokenID={props.collateralTokenID}
+        isMaxShown={false}
+        maxValue={0}
       />
   </div>
   )

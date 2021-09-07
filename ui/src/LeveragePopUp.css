@@ -685,3 +685,13 @@ cursor: pointer;
   flex: 0 1 40%;
   text-align: right;
 }
+
+.supply-max-button {
+  background: rgba(0, 0, 0, 0) none repeat scroll 0% 0%;
+  outline: currentcolor none medium;
+  border: 0px none;
+  color: white;
+  opacity: 0.5;
+  padding: 0px 18px 0px 0px;
+  cursor: pointer;
+}
