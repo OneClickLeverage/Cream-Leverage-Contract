@@ -13,6 +13,8 @@ Here is the demo with explanation.
 
 ### Set-up
 - First, users need to create an account but only at the beginning.
+ <img width="400" alt="Screen Shot 2021-09-07 at 22 28 21" src="https://user-images.githubusercontent.com/88586592/132393453-dd7b0fae-e1c5-497d-bceb-9d2965c99c72.png">
+
 
 ### Easy-to-Use
 - With ETH, users can take leverage with one click. With ERC20 tokens listed on Cream Finance, approval for the account is necessary. 
