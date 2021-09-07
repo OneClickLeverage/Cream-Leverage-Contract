@@ -106,7 +106,7 @@ border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 
 .row-content-label {
   margin: auto;
-  flex-basis: 40%;
+  flex-basis: 33%;
 }
 
 .row-content-value {
@@ -657,6 +657,20 @@ cursor: pointer;
   display: flex;
   /* align-content: flex-end; */
   justify-content: flex-end;
+}
+
+/* .row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+} */
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
 }
 
 .position-before {
