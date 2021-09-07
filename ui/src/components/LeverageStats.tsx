@@ -1,6 +1,7 @@
 import React from 'react'
+import { TokenID } from '../types/TokenID'
 import { CSS_RGB_CREAM_YELLOW, CSS_RGB_EMERALD_BRIGHT, CSS_RGB_PINK } from '../utils/color'
-
+import { roundAmount } from '../utils/number'
 
 function setRiskColor(rate: number): string {
   if (rate > 0.7) {
@@ -27,11 +28,12 @@ interface Props {
   collateralTicker: string
   leverageRate: number
   currentLeverageRate: number
+  collateralTokenID: TokenID
+  debtTokenID: TokenID
 }
 
 export function LeverageStats(props: Props) {
   const nextDebt = props.debtToAdd + props.currentDebt
-  console.log()
   const nextTotalDebtInColl = nextDebt /props.conversionRate
   const nextTotalCollateral = props.currentCollateral+props.collateralToAdd+(props.debtToAdd/props.conversionRate);
   const currentDebtInColl = props.currentDebt/props.conversionRate
@@ -48,7 +50,7 @@ export function LeverageStats(props: Props) {
             </div>
             <span className={`row-content-value eth-balance flex-container`}>
               <span className="position-before">
-                {`${(props.currentCollateral - (currentDebtInColl)).toFixed(4)} ${props.collateralTicker}`}
+                {`${roundAmount(props.currentCollateral - (currentDebtInColl), props.collateralTokenID)} ${props.collateralTicker}`}
               </span>
               { props.hasPosition &&
                 <span className="position-arrow">
@@ -57,7 +59,7 @@ export function LeverageStats(props: Props) {
               }
               { props.hasPosition &&
                 <span className="color-emerald position-after">
-                  {`${(nextTotalCollateral - nextTotalDebtInColl).toFixed(4)} ${props.collateralTicker}`}
+                  {`${roundAmount(nextTotalCollateral - nextTotalDebtInColl, props.collateralTokenID)} ${props.collateralTicker}`}
                 </span>
               }
             </span>
@@ -68,7 +70,7 @@ export function LeverageStats(props: Props) {
             </div>
             <span className={`row-content-value eth-balance flex-container`}>
             <span className="position-before">
-                {`${props.currentCollateral.toFixed(4)} ${props.collateralTicker}`}
+                {`${roundAmount(props.currentCollateral, props.collateralTokenID)} ${props.collateralTicker}`}
               </span>
               { props.hasPosition &&
                 <span className="position-arrow">
@@ -77,7 +79,7 @@ export function LeverageStats(props: Props) {
               }
               { props.hasPosition &&
                 <span className="color-emerald position-after">
-                {`${(nextTotalCollateral).toFixed(4)} ${props.collateralTicker}`}
+                {`${roundAmount(nextTotalCollateral, props.collateralTokenID)} ${props.collateralTicker}`}
                 </span>
               }
             </span>
@@ -88,13 +90,13 @@ export function LeverageStats(props: Props) {
             </div>
             <span className={`row-content-value eth-balance flex-container`}>
               <span className="position-before">
-                {`~${((currentDebtInColl) || 0).toFixed(4)} ${props.collateralTicker}`}
+                {`~${roundAmount(currentDebtInColl || 0, props.collateralTokenID)} ${props.collateralTicker}`}
               </span>
               <span className="position-arrow">
                 {` -> `}
               </span>
               <span className="color-pink position-after">
-                {`~${(nextTotalDebtInColl || 0).toFixed(4)} ${props.collateralTicker}`}
+                {`~${roundAmount(nextTotalDebtInColl || 0, props.collateralTokenID)} ${props.collateralTicker}`}
               </span>
             </span>
           </div>
@@ -104,13 +106,13 @@ export function LeverageStats(props: Props) {
             </div>
             <span className={`row-content-value eth-balance flex-container`}>
               <span className="position-before">
-                {`${props.currentDebt.toFixed(2)} ${props.debtTicker}`}
+                {`${roundAmount(props.currentDebt, props.debtTokenID)} ${props.debtTicker}`}
               </span>
               <span className="position-arrow">
                 {` -> `}
               </span>
               <span className="color-pink position-after">
-                {`${(nextDebt).toFixed(2)} ${props.debtTicker}`}
+                {`${roundAmount(nextDebt, props.debtTokenID)} ${props.debtTicker}`}
               </span>
             </span>
           </div>
@@ -119,13 +121,13 @@ export function LeverageStats(props: Props) {
               {`Leverage: `}
             </div>
             <span className={`row-content-value eth-balance flex-container`}>
-              <span className="position-before" style={{ textAlign: "center" }}>
+              <span className="position-before">
                 {`${props.currentLeverageRate.toFixed(1)}x`}
               </span>
               <span className="position-arrow">
                 {` -> `}
               </span>
-              <span className="position-after" style={{ textAlign: "center" }}>
+              <span className="position-after">
                 {`${props.leverageRate.toFixed(1)}x`}
               </span>
             </span>
@@ -141,19 +143,19 @@ export function LeverageStats(props: Props) {
             { props.hasPosition &&
               <div>
                 <span className="position-before" style={{ color: setRiskColor(props.currentDebtRatio)}}>
-                  {`${(props.currentDebtRatio * 100).toFixed(2)}%`}
+                  {`${(props.currentDebtRatio * 100).toFixed(0)}%`}
                 </span>
                 <span className="position-arrow">
                   {' -> '}
                 </span>
                 <span className="position-after" style={{ color: setRiskColor(props.debtRatio)}}>
-                  {`${(props.debtRatio * 100).toFixed(2)}%`}
+                  {`${(props.debtRatio * 100).toFixed(0)}%`}
                 </span>
               </div>
             }
             { !props.hasPosition &&
                 <span style={{ color: setRiskColor(props.debtRatio)}}>
-                  {`${(props.debtRatio * 100).toFixed(2)}%`}
+                  {`${(props.debtRatio * 100).toFixed(0)}%`}
                 </span>
             }
           </div>
@@ -170,17 +172,17 @@ export function LeverageStats(props: Props) {
             { props.hasPosition &&
               <div>
                 <span className="position-before" style={{ color: setRiskColor(props.currentDebtRatio)}}>
-                  {`$${(props.currentLiquidationPrice).toFixed(2)}`}
+                  {`$${roundAmount(props.currentLiquidationPrice, props.debtTokenID)}`}
                 </span>
                 <span className="position-arrow">{" -> "}</span>
                 <span className="position-after" style={{ color: setRiskColor(props.debtRatio)}}>
-                  {`$${(props.liquidationPrice).toFixed(2)}`}
+                  {`$${roundAmount(props.liquidationPrice, props.debtTokenID)}`}
                 </span>
               </div>
             }
             { !props.hasPosition &&
                 <span style={{ color: setRiskColor(props.debtRatio)}}>
-                {`$${(props.liquidationPrice).toFixed(2)}`}
+                {`$${roundAmount(props.liquidationPrice, props.debtTokenID)}`}
                 </span>
             }
             </div>
@@ -188,7 +190,7 @@ export function LeverageStats(props: Props) {
         <div className="row-content">
           <div className="row-content-label">Current Price</div>
           <div className="row-content-value">
-            <span>{`$${props.conversionRate.toFixed(2)}`}</span>
+            <span>{`$${roundAmount(props.conversionRate, props.debtTokenID)}`}</span>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React from 'react';
-
+import { TokenID } from '../types/TokenID';
+import { roundAmount } from '../utils/number';
 interface NumberInputProps {
   onInput: (e: any) => void
   value: number
@@ -7,6 +8,8 @@ interface NumberInputProps {
   ticker: string
   otherPairTicker: string
   errorMessage: string
+  tokenID: TokenID
+  otherPairTokenID: TokenID
 }
 
 function NumberInput(props: NumberInputProps) {
@@ -26,7 +29,7 @@ function NumberInput(props: NumberInputProps) {
             </input>
             <span>{props.ticker}</span>
           </div>
-          <div>{`${props.otherPairTicker === '$' ? '$' : ''}${props.otherPairValue}${props.otherPairTicker === '$' ? '' : ' ' + props.otherPairTicker}`}</div>
+          <div>{`${props.otherPairTicker === '$' ? '$' : ''}${roundAmount(props.otherPairValue, props.otherPairTokenID)}${props.otherPairTicker === '$' ? '' : ' ' + props.otherPairTicker}`}</div>
         </div>
       </div>
       { isError &&
@@ -52,6 +55,8 @@ interface Props {
   collErrorMessage: string
   debtErrorMessage: string
   isDeleverage: boolean
+  collateralTokenID: TokenID
+  debtTokenID: TokenID
   setCollateralAmount: (amount: number) => void
   setDebtAmount: (amount: number) => void
 }
@@ -87,6 +92,8 @@ export function AmountInput(props: Props) {
         onInput={onDepositAmountInput}
         otherPairTicker={props.debtTicker}
         errorMessage={props.collErrorMessage}
+        tokenID={props.collateralTokenID}
+        otherPairTokenID={props.debtTokenID}
       />
       <div className="row-header">
         <div className="row-header-label">
@@ -100,6 +107,8 @@ export function AmountInput(props: Props) {
         otherPairTicker={props.collateralTicker}
         onInput={onDebtAmountInput}
         errorMessage={props.debtErrorMessage}
+        tokenID={props.debtTokenID}
+        otherPairTokenID={props.collateralTokenID}
       />
   </div>
   )
