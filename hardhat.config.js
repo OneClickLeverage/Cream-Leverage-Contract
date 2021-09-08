@@ -1,9 +1,13 @@
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
+require('@nomiclabs/hardhat-ethers');
+require('hardhat-typechain');
+
  require("@nomiclabs/hardhat-ethers");
  const secret = require("./secret.json")
- 
+//  import 'hardhat-typechain';
+
  module.exports = {
    networks: {
      hardhat: {
@@ -19,7 +23,7 @@
   solidity: {
     compilers: [
       {
-        version: "0.7.6",
+        version: "0.7.4",
         settings: {
           optimizer: {
             enabled: false,
@@ -33,5 +37,9 @@
       { version: "0.6.8",},
       { version: "0.7.0",},
     ],
+  },
+  typechain: {
+    outDir: 'types/compiled',
+    target: 'ethers-v5',
   },
  };

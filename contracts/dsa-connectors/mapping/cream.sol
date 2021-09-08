@@ -1,4 +1,4 @@
-pragma solidity ^0.7.0;
+pragma solidity ^0.7.4;
 pragma experimental ABIEncoderV2;
 
 //https://etherscan.io/address/0xe7a85d0adDB972A4f0A4e57B698B37f171519e88#readContract

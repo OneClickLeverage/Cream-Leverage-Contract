@@ -118,7 +118,7 @@ async function main() {
         token_.ctokens
     );
     await creamMapping.deployed();
-    console.log("CreamMapping: ", creamMapping.address);
+    console.log("CreamMapping: ", creamMapping.address) //"0xe7a85d0adDB972A4f0A4e57B698B37f171519e88");
 
 
   console.log("");
@@ -209,6 +209,13 @@ async function main() {
           status: ${txtxaddConnectorsDetails.status == 1},
           tx: ${txtxaddConnectorsDetails.transactionHash},
         `)
+
+  console.log("=====Gelato====")
+
+  const ConditionCreamCTokenUnsafe = await ethers.getContractFactory("ConditionCreamCTokenUnsafe");
+  const conditionCreamCTokenUnsafe = await ConditionCreamCTokenUnsafe.deploy();
+  await conditionCreamCTokenUnsafe.deployed();
+  console.log("conditionCreamCTokenUnsafe: ", conditionCreamCTokenUnsafe.address);
 }
 
 main()

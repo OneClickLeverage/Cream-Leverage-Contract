@@ -22,6 +22,8 @@ interface CTokenInterface {
     function balanceOf(address owner) external view returns (uint256 balance);
 
     function comptroller() external view returns (address troller);
+
+    function getAccountSnapshot(address account) external view returns (uint, uint, uint, uint);
     
     }
 
